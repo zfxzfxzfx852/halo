@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"bytes"
 	"io"
 	"log/slog"
 	"net/http"
@@ -94,5 +95,36 @@ func TestUpstreamUnavailable(t *testing.T) {
 	h.ServeHTTP(rec, req)
 	if rec.Code != http.StatusBadGateway {
 		t.Fatalf("expected 502, got %d", rec.Code)
+	}
+}
+
+func TestOversizedRequestRejected(t *testing.T) {
+	h, _ := newTestHandler(t, func(w http.ResponseWriter, _ *http.Request) {
+		t.Fatal("upstream must not be reached for oversized request")
+	})
+	big := make([]byte, maxBodySize+1024)
+	req := httptest.NewRequest(http.MethodPost, "/x", bytes.NewReader(big))
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	if rec.Code != http.StatusRequestEntityTooLarge {
+		t.Fatalf("expected 413, got %d", rec.Code)
+	}
+}
+
+func TestLargeResponseFullyForwarded(t *testing.T) {
+	const size = maxBodySize + (1 << 20) // 17 MiB，超过记录上限
+	h, _ := newTestHandler(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/octet-stream")
+		payload := make([]byte, size)
+		for i := range payload {
+			payload[i] = byte(i % 251)
+		}
+		_, _ = w.Write(payload)
+	})
+	req := httptest.NewRequest(http.MethodGet, "/big", nil)
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	if rec.Body.Len() != size {
+		t.Fatalf("response truncated: got %d bytes, want %d", rec.Body.Len(), size)
 	}
 }

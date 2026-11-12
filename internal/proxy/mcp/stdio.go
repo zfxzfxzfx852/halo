@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"sync"
+	"syscall"
 	"time"
 
 	"halo/internal/event"
@@ -51,6 +52,7 @@ func DialProcess(command string, args ...string) (ServerConn, error) {
 		return nil, err
 	}
 	cmd.Stderr = os.Stderr
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	if err := cmd.Start(); err != nil {
 		return nil, err
 	}
@@ -60,7 +62,18 @@ func DialProcess(command string, args ...string) (ServerConn, error) {
 func (p *processConn) Stdin() io.Writer  { return p.stdin }
 func (p *processConn) Stdout() io.Reader { return p.stdout }
 func (p *processConn) Wait() error       { return p.cmd.Wait() }
-func (p *processConn) Close() error      { return p.cmd.Process.Kill() }
+
+// Close 杀掉整个进程组，避免 MCP server 派生的子进程残留。
+func (p *processConn) Close() error {
+	if p.cmd.Process == nil {
+		return nil
+	}
+	if err := syscall.Kill(-p.cmd.Process.Pid, syscall.SIGKILL); err != nil {
+		// 进程已退出等情况下退化为直接杀主进程。
+		_ = p.cmd.Process.Kill()
+	}
+	return nil
+}
 
 // StdioBridge 在 agent 与 MCP server 之间做透明桥接并发布事件。
 type StdioBridge struct {

@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"errors"
 	"io"
 	"log/slog"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -17,6 +19,21 @@ import (
 )
 
 const maxBodySize = 16 << 20 // 16 MiB
+
+// errBodyTooLarge 表示请求体超过允许的最大尺寸。
+var errBodyTooLarge = errors.New("request body too large")
+
+// readCapped 读取最多 maxBodySize；多读 1 字节以区分正好达到上限与超限。
+func readCapped(r io.Reader) ([]byte, error) {
+	b, err := io.ReadAll(io.LimitReader(r, maxBodySize+1))
+	if err != nil {
+		return nil, err
+	}
+	if int64(len(b)) > maxBodySize {
+		return nil, errBodyTooLarge
+	}
+	return b, nil
+}
 
 // PolicyEvaluator 由策略引擎实现，用于转发前决策。
 type PolicyEvaluator interface {
@@ -43,7 +60,15 @@ type Handler struct {
 func New(upstream *url.URL, bus event.Bus, log *slog.Logger, pe PolicyEvaluator, ap Approver) *Handler {
 	return &Handler{
 		upstream: upstream,
-		client:   &http.Client{},
+		client: &http.Client{
+			Transport: &http.Transport{
+				Proxy:               http.ProxyFromEnvironment,
+				DialContext:         (&net.Dialer{Timeout: 10 * time.Second, KeepAlive: 30 * time.Second}).DialContext,
+				TLSHandshakeTimeout: 10 * time.Second,
+				ResponseHeaderTimeout: 60 * time.Second,
+				IdleConnTimeout:     90 * time.Second,
+			},
+		},
 		bus:      bus,
 		log:      log,
 		policy:   pe,
@@ -57,8 +82,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	sessionID := sessionIDFrom(r)
 	eventID := model.NewID("evt")
 
-	reqBody, err := io.ReadAll(io.LimitReader(r.Body, maxBodySize))
+	reqBody, err := readCapped(r.Body)
 	if err != nil {
+		if errors.Is(err, errBodyTooLarge) {
+			http.Error(w, "halo: request body too large", http.StatusRequestEntityTooLarge)
+			return
+		}
 		http.Error(w, "halo: cannot read request", http.StatusBadGateway)
 		return
 	}
@@ -115,15 +144,18 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := io.ReadAll(io.LimitReader(resp.Body, maxBodySize))
-	if err != nil {
-		h.log.Error("read response error", "err", err)
-		return
+	// 完整透传响应体，同时仅缓冲前 maxBodySize 用于事件记录，
+	// 既避免大响应被截断，也避免把整个响应读入内存。
+	flusher, _ := w.(http.Flusher)
+	var sample bytes.Buffer
+	tee := io.TeeReader(io.LimitReader(resp.Body, maxBodySize), &sample)
+	if _, err := io.Copy(w, io.MultiReader(tee, resp.Body)); err != nil {
+		h.log.Warn("forward response error", "err", err)
 	}
-	if _, err := w.Write(body); err != nil {
-		h.log.Warn("write response error", "err", err)
+	if flusher != nil {
+		flusher.Flush()
 	}
-	h.bus.Publish(context.Background(), buildResponseEvent(eventID, resp.Header, resp.StatusCode, body, sessionID, h.now()))
+	h.bus.Publish(context.Background(), buildResponseEvent(eventID, resp.Header, resp.StatusCode, sample.Bytes(), sessionID, h.now()))
 }
 
 // proxyStream 转发 SSE 流式响应，边转发边累积，不破坏实时性。
