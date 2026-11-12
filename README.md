@@ -1,6 +1,6 @@
 <div align="center">
 
-# Vigil
+# Halo
 
 ### The local-first observability & security plane for AI agents
 
@@ -17,7 +17,7 @@
 
 ## 中文
 
-Vigil 是一个本地优先、自托管的 AI Agent 可观测与安全控制平面。它透明地拦截 Agent 与模型/工具之间的每一次调用，让你实时看见 Agent 在做什么，并在危险操作发生前拦截、审批或隔离执行。
+Halo 是一个本地优先、自托管的 AI Agent 可观测与安全控制平面。它透明地拦截 Agent 与模型/工具之间的每一次调用，让你实时看见 Agent 在做什么，并在危险操作发生前拦截、审批或隔离执行。
 
 ### 特性
 
@@ -34,7 +34,7 @@ Vigil 是一个本地优先、自托管的 AI Agent 可观测与安全控制平�
 ```bash
 # 从源码构建
 make build
-./bin/vigil
+./bin/halo
 
 # 打开控制台
 # http://127.0.0.1:8787
@@ -45,7 +45,7 @@ make build
 ### 工作原理
 
 ```
-Agent ─► Vigil 透明代理 ─► 策略/检测/沙箱 ─► 模型/工具
+Agent ─► Halo 透明代理 ─► 策略/检测/沙箱 ─► 模型/工具
               │
               ▼
       事件存储 + 审计链 + WebSocket + 实时控制台
@@ -59,11 +59,11 @@ Agent ─► Vigil 透明代理 ─► 策略/检测/沙箱 ─► 模型/工具
 
 ### 合规声明
 
-Vigil 仅用于防御、可观测与授权环境，禁止用于未授权攻击。检测样本来自公开靶场与授权数据。
+Halo 仅用于防御、可观测与授权环境，禁止用于未授权攻击。检测样本来自公开靶场与授权数据。
 
 ## English
 
-Vigil is a local-first, self-hosted observability and security plane for AI agents. It transparently intercepts every call between an agent and its models/tools, visualizes activity in real time, and blocks, approves, or sandboxes risky operations before they run.
+Halo is a local-first, self-hosted observability and security plane for AI agents. It transparently intercepts every call between an agent and its models/tools, visualizes activity in real time, and blocks, approves, or sandboxes risky operations before they run.
 
 ### Features
 
@@ -79,7 +79,7 @@ Vigil is a local-first, self-hosted observability and security plane for AI agen
 
 ```bash
 make build
-./bin/vigil
+./bin/halo
 # open http://127.0.0.1:8787
 ```
 

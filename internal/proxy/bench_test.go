@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"vigil/internal/event"
+	"halo/internal/event"
 )
 
 // BenchmarkProxyThroughput 测量代理在普通 JSON 转发下的单请求开销与内存分配。

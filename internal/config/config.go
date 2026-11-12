@@ -75,25 +75,25 @@ func loadFile(cfg *Config, path string) error {
 }
 
 func applyEnv(cfg *Config) {
-	if v := os.Getenv("VIGIL_HOST"); v != "" {
+	if v := os.Getenv("HALO_HOST"); v != "" {
 		cfg.Host = v
 	}
-	if v := os.Getenv("VIGIL_PORT"); v != "" {
+	if v := os.Getenv("HALO_PORT"); v != "" {
 		cfg.Port = v
 	}
-	if v := os.Getenv("VIGIL_DATA_DIR"); v != "" {
+	if v := os.Getenv("HALO_DATA_DIR"); v != "" {
 		cfg.DataDir = v
 	}
-	if v := os.Getenv("VIGIL_MODE"); v != "" {
+	if v := os.Getenv("HALO_MODE"); v != "" {
 		cfg.Mode = v
 	}
-	if v := os.Getenv("VIGIL_LOG_LEVEL"); v != "" {
+	if v := os.Getenv("HALO_LOG_LEVEL"); v != "" {
 		cfg.LogLevel = v
 	}
-	if v := os.Getenv("VIGIL_UPSTREAM_URL"); v != "" {
+	if v := os.Getenv("HALO_UPSTREAM_URL"); v != "" {
 		cfg.Upstream.BaseURL = v
 	}
-	if v := os.Getenv("VIGIL_RETENTION_DAYS"); v != "" {
+	if v := os.Getenv("HALO_RETENTION_DAYS"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil {
 			cfg.Storage.RetentionDays = n
 		}

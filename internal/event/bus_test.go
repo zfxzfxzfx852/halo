@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"vigil/internal/model"
+	"halo/internal/model"
 )
 
 func TestPublishSubscribe(t *testing.T) {

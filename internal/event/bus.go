@@ -5,7 +5,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"vigil/internal/model"
+	"halo/internal/model"
 )
 
 const subscriberBuffer = 256

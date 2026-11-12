@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"vigil/internal/config"
+	"halo/internal/config"
 )
 
 // 构建期通过 -ldflags 注入。
@@ -60,7 +60,7 @@ func (s *Server) version(w http.ResponseWriter, _ *http.Request) {
 
 // Start 启动监听，阻塞直到服务结束。
 func (s *Server) Start() error {
-	s.log.Info("vigil starting", "addr", s.http.Addr, "mode", s.cfg.Mode, "proxy", s.proxyHandler != nil)
+	s.log.Info("halo starting", "addr", s.http.Addr, "mode", s.cfg.Mode, "proxy", s.proxyHandler != nil)
 	return s.http.ListenAndServe()
 }
 

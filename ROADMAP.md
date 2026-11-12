@@ -1,6 +1,6 @@
-# Vigil 开发路线图（16 周 · 从 0 到 1）
+# Halo 开发路线图（16 周 · 从 0 到 1）
 
-> Vigil —— The local-first observability & security plane for AI agents.
+> Halo —— The local-first observability & security plane for AI agents.
 > 给任何 AI Agent 装上「飞行记录仪 + 安全气囊 + 控制台」。
 
 - 计划周期：**2026-11-09（W1）→ 2027-02-28（W16）**
@@ -29,7 +29,7 @@
 - **检测**：规则/AST/启发式 + 本地 LLM（Ollama）语义检测
 
 ```
-Agent ──► Vigil 透明代理(拦截) ──► 策略引擎 ──► 检测引擎 ──► 沙箱/放行 ──► 模型/工具
+Agent ──► Halo 透明代理(拦截) ──► 策略引擎 ──► 检测引擎 ──► 沙箱/放行 ──► 模型/工具
               │                        │            │
               ▼                        ▼            ▼
           事件采集 ──► SQLite 存储 ──► 审计哈希链 ──► WebSocket ──► React 控制台
@@ -60,10 +60,10 @@ Agent ──► Vigil 透明代理(拦截) ──► 策略引擎 ──► 检�
 - 任务：
   - 初始化 Go module、目录结构、Makefile、`.gitignore`、LICENSE(MIT)
   - 落地 `ROADMAP.md`、`GITHUB_PLAN.md`、README 双语骨架
-  - `cmd/vigil` 最小入口：加载配置、启动 HTTP server、`/healthz`
+  - `cmd/halo` 最小入口：加载配置、启动 HTTP server、`/healthz`
   - git init，建立提交规范与周备份 tag 机制
-- 交付物：`vigil` 可编译运行，`GET /healthz` 返回 200
-- 验收：`make build && ./vigil` 正常；`make test` 通过
+- 交付物：`halo` 可编译运行，`GET /healthz` 返回 200
+- 验收：`make build && ./halo` 正常；`make test` 通过
 - 备份点：tag `v0.0.1-week1`
 
 #### W2（11/16–11/22）配置与领域模型
@@ -85,7 +85,7 @@ Agent ──► Vigil 透明代理(拦截) ──► 策略引擎 ──► 检�
   - 反向代理：请求/响应缓冲、Header 透传、流式(SSE) 转发
   - 解析 `chat/completions`、`tools/call` 载荷，生成原始事件
   - 代理吞吐与延迟基准（benchmark）
-- 交付物：指向 Vigil 的客户端请求可被完整记录并正确转发
+- 交付物：指向 Halo 的客户端请求可被完整记录并正确转发
 - 验收：流式响应不中断；基准测试输出延迟数据
 - 备份点：tag `v0.1.0-http-proxy`
 

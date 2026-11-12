@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"vigil/internal/model"
+	"halo/internal/model"
 )
 
 var sensitiveHeaders = map[string]bool{

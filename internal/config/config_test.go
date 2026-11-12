@@ -23,7 +23,7 @@ func TestLoadDefaults(t *testing.T) {
 }
 
 func TestLoadYAML(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "vigil.yaml")
+	path := filepath.Join(t.TempDir(), "halo.yaml")
 	content := []byte("port: 9999\nmode: guard\nstorage:\n  retentionDays: 7\n")
 	if err := os.WriteFile(path, content, 0o644); err != nil {
 		t.Fatal(err)
@@ -38,12 +38,12 @@ func TestLoadYAML(t *testing.T) {
 }
 
 func TestEnvOverridesYAML(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "vigil.yaml")
+	path := filepath.Join(t.TempDir(), "halo.yaml")
 	if err := os.WriteFile(path, []byte("port: 9999\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("VIGIL_PORT", "7777")
-	t.Setenv("VIGIL_MODE", "guard")
+	t.Setenv("HALO_PORT", "7777")
+	t.Setenv("HALO_MODE", "guard")
 	cfg, err := Load(path)
 	if err != nil {
 		t.Fatal(err)
@@ -54,7 +54,7 @@ func TestEnvOverridesYAML(t *testing.T) {
 }
 
 func TestInvalidMode(t *testing.T) {
-	t.Setenv("VIGIL_MODE", "bogus")
+	t.Setenv("HALO_MODE", "bogus")
 	if _, err := Load(""); err == nil {
 		t.Fatal("expected validation error for invalid mode")
 	}

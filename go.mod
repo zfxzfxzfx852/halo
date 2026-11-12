@@ -1,4 +1,4 @@
-module vigil
+module halo
 
 go 1.23
 

@@ -1,5 +1,5 @@
-BINARY := vigil
-PKG := ./cmd/vigil
+BINARY := halo
+PKG := ./cmd/halo
 GOFLAGS := -trimpath
 
 .PHONY: all build run test fmt vet lint clean ci web-install web-dev web-build tidy

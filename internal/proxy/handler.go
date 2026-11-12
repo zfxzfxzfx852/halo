@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"vigil/internal/event"
-	"vigil/internal/model"
+	"halo/internal/event"
+	"halo/internal/model"
 )
 
 const maxBodySize = 16 << 20 // 16 MiB
@@ -44,7 +44,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	reqBody, err := io.ReadAll(io.LimitReader(r.Body, maxBodySize))
 	if err != nil {
-		http.Error(w, "vigil: cannot read request", http.StatusBadGateway)
+		http.Error(w, "halo: cannot read request", http.StatusBadGateway)
 		return
 	}
 
@@ -54,7 +54,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	outReq, err := http.NewRequestWithContext(r.Context(), r.Method, target.String(), bytes.NewReader(reqBody))
 	if err != nil {
-		http.Error(w, "vigil: invalid request", http.StatusBadGateway)
+		http.Error(w, "halo: invalid request", http.StatusBadGateway)
 		return
 	}
 	copyHeaders(outReq.Header, r.Header)
@@ -65,7 +65,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.client.Do(outReq)
 	if err != nil {
 		h.log.Error("upstream error", "err", err, "path", r.URL.Path)
-		http.Error(w, "vigil: upstream unavailable", http.StatusBadGateway)
+		http.Error(w, "halo: upstream unavailable", http.StatusBadGateway)
 		return
 	}
 	defer resp.Body.Close()
@@ -115,7 +115,7 @@ func isStream(h http.Header) bool {
 }
 
 func sessionIDFrom(r *http.Request) string {
-	if v := r.Header.Get("X-Vigil-Session"); v != "" {
+	if v := r.Header.Get("X-Halo-Session"); v != "" {
 		return v
 	}
 	return "default"

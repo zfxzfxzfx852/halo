@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"vigil/internal/event"
-	"vigil/internal/model"
+	"halo/internal/event"
+	"halo/internal/model"
 )
 
 func newTestHandler(t *testing.T, upstream http.HandlerFunc) (*Handler, event.Bus) {
