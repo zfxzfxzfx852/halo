@@ -9,7 +9,7 @@
 [![CI](https://github.com/zfxzfxzfx852/halo/actions/workflows/ci.yml/badge.svg)](https://github.com/zfxzfxzfx852/halo/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Go Report](https://img.shields.io/badge/go-1.23-00ADD8.svg)](https://go.dev)
-<!-- 演示 GIF 占位（首发前替换） -->
+![Halo demo](./docs/promo/halo-demo.gif)
 
 </div>
 
