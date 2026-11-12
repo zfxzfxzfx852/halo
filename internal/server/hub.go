@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/coder/websocket"
 
@@ -33,7 +34,10 @@ func (h *Hub) Broadcast(e *model.Event) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	for conn, cancel := range h.clients {
-		if err := conn.Write(context.Background(), websocket.MessageText, data); err != nil {
+		writeCtx, cancelWrite := context.WithTimeout(context.Background(), 5*time.Second)
+		err := conn.Write(writeCtx, websocket.MessageText, data)
+		cancelWrite()
+		if err != nil {
 			h.log.Warn("ws write failed, removing client", "err", err)
 			cancel()
 			_ = conn.Close(websocket.StatusInternalError, "write failed")

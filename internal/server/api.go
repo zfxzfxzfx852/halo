@@ -16,8 +16,8 @@ func (s *Server) listEvents(w http.ResponseWriter, r *http.Request) {
 		Protocol:  q.Get("protocol"),
 		SessionID: q.Get("session"),
 		RiskMin:   model.RiskLevel(q.Get("riskMin")),
-		Limit:     atoiDefault(q.Get("limit"), 50),
-		Offset:    atoiDefault(q.Get("offset"), 0),
+		Limit:  clampLimit(atoiDefault(q.Get("limit"), 50)),
+		Offset: nonNegative(atoiDefault(q.Get("offset"), 0), 0),
 	}
 	events, total, err := s.store.ListEvents(r.Context(), f)
 	if err != nil {
@@ -58,6 +58,28 @@ func atoiDefault(v string, def int) int {
 		return def
 	}
 	return n
+}
+
+// maxPageSize 限制单次查询返回条数，避免一次拉取过多。
+const maxPageSize = 1000
+
+// clampLimit 把分页大小钳制到 [1, maxPageSize]。
+func clampLimit(v int) int {
+	if v < 1 {
+		return 50
+	}
+	if v > maxPageSize {
+		return maxPageSize
+	}
+	return v
+}
+
+// nonNegative 把负值回退到 def，避免非法分页参数导致 SQL 错误。
+func nonNegative(v, def int) int {
+	if v < 0 {
+		return def
+	}
+	return v
 }
 
 func writeError(w http.ResponseWriter, status int, err error) {

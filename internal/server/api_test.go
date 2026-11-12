@@ -88,6 +88,16 @@ func TestStats(t *testing.T) {
 	}
 }
 
+func TestNegativePagination(t *testing.T) {
+	env := newTestEnv(t)
+	if code := getStatus(t, env.base+"/api/v1/events?limit=-1&offset=-5"); code != http.StatusOK {
+		t.Fatalf("negative paging should be clamped, got %d", code)
+	}
+	if code := getStatus(t, env.base+"/api/v1/events?limit=999999"); code != http.StatusOK {
+		t.Fatalf("oversized limit should be clamped, got %d", code)
+	}
+}
+
 func TestApprovals(t *testing.T) {
 	env := newTestEnv(t)
 
