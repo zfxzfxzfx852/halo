@@ -26,7 +26,28 @@ import (
 	"halo/internal/store"
 )
 
+// version 在发布构建时通过 -ldflags -X main.version=... 注入。
+var version = "dev"
+
 func main() {
+	// 子命令：halo init 进入交互式配置向导。
+	if len(os.Args) > 1 && os.Args[1] == "init" {
+		if err := runInit(); err != nil {
+			slog.Error("init failed", "err", err)
+			os.Exit(1)
+		}
+		return
+	}
+
+	// 子命令：halo mcp 以 stdio 方式桥接 MCP server。
+	if len(os.Args) > 1 && os.Args[1] == "mcp" {
+		if err := runMCP(os.Args[2:]); err != nil {
+			slog.New(slog.NewTextHandler(os.Stderr, nil)).Error("mcp failed", "err", err)
+			os.Exit(1)
+		}
+		return
+	}
+
 	configPath := flag.String("config", envOr("HALO_CONFIG", "halo.yaml"), "path to config file")
 	flag.Parse()
 
@@ -41,6 +62,7 @@ func main() {
 		os.Exit(1)
 	}
 	log := newLogger(cfg.LogLevel)
+	log.Info("halo starting", "version", version, "mode", cfg.Mode, "addr", cfg.Addr())
 
 	if err := os.MkdirAll(cfg.DataDir, 0o755); err != nil {
 		log.Error("create data dir failed", "err", err)

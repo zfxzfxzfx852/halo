@@ -32,15 +32,31 @@ Halo 是一个本地优先、自托管的 AI Agent 可观测与安全控制平�
 ### 快速开始
 
 ```bash
-# 从源码构建
-make build
-./bin/halo
+# 一键安装（macOS / Linux）
+curl -fsSL https://raw.githubusercontent.com/zfxzfxzfx852/halo/main/scripts/install.sh | sh
 
-# 打开控制台
-# http://127.0.0.1:8787
+# 交互式生成配置（设置上游、端口、模式）
+halo init
+
+# 启动
+halo
 ```
 
+从源码构建：`make build && ./bin/halo`
+
+打开控制台：`http://127.0.0.1:8787/console/`
 健康检查：`curl http://127.0.0.1:8787/healthz`
+
+也可用 Homebrew（`brew install zfxzfxzfx852/tap/halo`）或 Docker（`docker compose up -d`）。
+
+### 接入你的工具
+
+把工具的 Base URL 指向 Halo 即可，详见接入指南：
+
+- [Claude Code](./docs/integrations/claude-code.md)
+- [Cursor](./docs/integrations/cursor.md)
+- [Cline](./docs/integrations/cline.md)
+- [通用 MCP 客户端](./docs/integrations/mcp.md) · [接入总览](./docs/integrations/README.md)
 
 ### 工作原理
 
@@ -55,7 +71,7 @@ Agent ─► Halo 透明代理 ─► 策略/检测/沙箱 ─► 模型/工具
 
 - 开发路线图：[`ROADMAP.md`](./ROADMAP.md)
 - 发布与运营计划：[`GITHUB_PLAN.md`](./GITHUB_PLAN.md)
-- 安全策略：[`SECURITY.md`](./SECURITY.md)（待补）
+- 接入指南：[`docs/integrations/`](./docs/integrations/README.md)
 
 ### 合规声明
 
@@ -78,10 +94,22 @@ Halo is a local-first, self-hosted observability and security plane for AI agent
 ### Quick Start
 
 ```bash
-make build
-./bin/halo
-# open http://127.0.0.1:8787
+# one-line install (macOS / Linux)
+curl -fsSL https://raw.githubusercontent.com/zfxzfxzfx852/halo/main/scripts/install.sh | sh
+
+# interactive config wizard, then start
+halo init
+halo
 ```
+
+Build from source: `make build && ./bin/halo`
+Console: `http://127.0.0.1:8787/console/`
+
+Also available via Homebrew (`brew install zfxzfxzfx852/tap/halo`) and Docker (`docker compose up -d`).
+
+### Integrations
+
+Point your tool's Base URL at Halo. See [docs/integrations](./docs/integrations/README.md) for Claude Code, Cursor, Cline and generic MCP clients.
 
 ### License
 

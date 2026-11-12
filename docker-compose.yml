@@ -1,0 +1,11 @@
+services:
+  halo:
+    build: .
+    image: halo:latest
+    ports:
+      - "8787:8787"
+    volumes:
+      - ./data:/data
+      - ./halo.yaml:/etc/halo/halo.yaml:ro
+    command: ["--config", "/etc/halo/halo.yaml"]
+    restart: unless-stopped

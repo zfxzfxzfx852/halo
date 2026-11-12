@@ -16,11 +16,11 @@
 | M0 地基 | W1–W2 | 已完成 | v0.0.1-week1、v0.0.2-week2 |
 | M1 Observe | W3–W6 | 已完成 | v0.1.0-http-proxy、v0.2.0-mcp、v0.3.0-store-ws、v0.4.0-console |
 | M2 Guard | W7–W10 | 已完成 | v0.5.0-policy、v0.6.0-detect、v0.7.0-approval-sandbox、v0.8.0-audit |
-| M3 打磨 | W11–W12 | 待开始 | — |
+| M3 打磨 | W11–W12 | 进行中（W11 已完成） | v0.9.0-install |
 | M4 引爆 | W13–W14 | 待开始 | — |
 | M5 二波 | W15–W16 | 待开始 | — |
 
-远程仓库：`github.com/zfxzfxzfx852/halo`（私有，main 与 10 个 tag 已同步，提交署名 zfxzfxzfx852）。
+远程仓库：`github.com/zfxzfxzfx852/halo`（私有，main 与 11 个 tag 已同步，提交署名 zfxzfxzfx852）。
 
 ---
 
@@ -180,7 +180,7 @@ Agent ──► Halo 透明代理(拦截) ──► 策略引擎 ──► 检�
 
 ### M3 打磨（W11–W12）
 
-#### W11（01/18–01/24）安装与适配
+#### W11（01/18–01/24）安装与适配 ✅ 已完成（2026-11-12）
 - 任务：一键安装脚本（curl/brew）、三大对象接入指南、配置向导、Dockerfile 与 compose（补齐容器化）
 - 验收：干净环境一条命令安装并跑通
 - 备份点：tag `v0.9.0-install`

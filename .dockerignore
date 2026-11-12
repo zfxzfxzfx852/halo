@@ -1,0 +1,10 @@
+bin/
+dist/
+data/
+**/data/
+web/node_modules/
+web/dist/
+.git/
+*.db
+*.log
+.DS_Store
