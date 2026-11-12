@@ -13,12 +13,14 @@ import (
 	"syscall"
 	"time"
 
+	"halo/internal/approval"
 	"halo/internal/config"
 	"halo/internal/detect"
 	"halo/internal/event"
 	"halo/internal/model"
 	"halo/internal/policy"
 	"halo/internal/proxy"
+	"halo/internal/sandbox"
 	"halo/internal/server"
 	"halo/internal/store"
 )
@@ -71,6 +73,11 @@ func main() {
 		log.Info("policy loaded", "file", cfg.PolicyFile, "rules", len(pol.Rules))
 	}
 
+	// 审批管理器与沙箱注册表（沙箱能力就绪，供隔离执行与后续驱动扩展）。
+	approvals := approval.NewManager(bus, 0)
+	sandboxes := sandbox.NewRegistry()
+	log.Info("sandbox ready", "drivers", sandboxDriverNames(sandboxes))
+
 	var proxyHandler http.Handler
 	if cfg.Upstream.BaseURL != "" {
 		upstream, err := url.Parse(cfg.Upstream.BaseURL)
@@ -78,15 +85,17 @@ func main() {
 			log.Error("invalid upstream url", "err", err)
 			os.Exit(1)
 		}
-		// 仅 guard 模式启用阻断；observe 模式保持旁路观察。
+		// 仅 guard 模式启用阻断与审批；observe 模式保持旁路观察。
 		var evaluator proxy.PolicyEvaluator
-		if engine != nil && cfg.Mode == config.ModeGuard {
+		var approver proxy.Approver
+		if cfg.Mode == config.ModeGuard {
 			evaluator = engine
+			approver = approvals
 		}
-		proxyHandler = proxy.New(upstream, bus, log, evaluator)
+		proxyHandler = proxy.New(upstream, bus, log, evaluator, approver)
 	}
 
-	srv := server.New(cfg, log, st, hub, proxyHandler)
+	srv := server.New(cfg, log, st, hub, approvals, proxyHandler)
 
 	errCh := make(chan error, 1)
 	go func() {
@@ -161,4 +170,8 @@ func envOr(key, def string) string {
 		return v
 	}
 	return def
+}
+
+func sandboxDriverNames(r *sandbox.Registry) []string {
+	return r.Names()
 }

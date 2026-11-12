@@ -23,6 +23,11 @@ type PolicyEvaluator interface {
 	Decide(ev *model.Event) model.Decision
 }
 
+// Approver 处理需要人工确认的调用，挂起直到得到决策。
+type Approver interface {
+	Approve(ctx context.Context, ev *model.Event) model.Decision
+}
+
 // Handler 是透明代理处理器，负责转发并记录事件。
 type Handler struct {
 	upstream *url.URL
@@ -30,17 +35,19 @@ type Handler struct {
 	bus      event.Bus
 	log      *slog.Logger
 	policy   PolicyEvaluator
+	approver Approver
 	now      func() time.Time
 }
 
 // New 构建代理处理器。
-func New(upstream *url.URL, bus event.Bus, log *slog.Logger, pe PolicyEvaluator) *Handler {
+func New(upstream *url.URL, bus event.Bus, log *slog.Logger, pe PolicyEvaluator, ap Approver) *Handler {
 	return &Handler{
 		upstream: upstream,
 		client:   &http.Client{},
 		bus:      bus,
 		log:      log,
 		policy:   pe,
+		approver: ap,
 		now:      time.Now,
 	}
 }
@@ -74,12 +81,21 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.bus.Publish(context.Background(), e)
 	}
 
-	// 转发前决策：deny 直接阻断；ask 的人工审批在 W9 落地，当前保守阻断。
+	// 转发前决策：deny 直接阻断；ask 挂起等待人工审批，未批准则阻断。
 	if h.policy != nil {
 		switch h.policy.Decide(reqEvent) {
-		case model.DecisionDeny, model.DecisionAsk:
+		case model.DecisionDeny:
 			h.block(w, eventID)
 			return
+		case model.DecisionAsk:
+			decision := model.DecisionDeny
+			if h.approver != nil {
+				decision = h.approver.Approve(r.Context(), reqEvent)
+			}
+			if decision != model.DecisionAllow {
+				h.block(w, eventID)
+				return
+			}
 		}
 	}
 

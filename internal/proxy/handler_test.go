@@ -23,7 +23,7 @@ func newTestHandler(t *testing.T, upstream http.HandlerFunc) (*Handler, event.Bu
 		t.Fatal(err)
 	}
 	bus := event.New()
-	return New(u, bus, slog.Default(), nil), bus
+	return New(u, bus, slog.Default(), nil, nil), bus
 }
 
 func TestProxyJSONAndEvents(t *testing.T) {
@@ -88,7 +88,7 @@ func TestProxySSEStream(t *testing.T) {
 
 func TestUpstreamUnavailable(t *testing.T) {
 	u, _ := url.Parse("http://127.0.0.1:1")
-	h := New(u, event.New(), slog.Default(), nil)
+	h := New(u, event.New(), slog.Default(), nil, nil)
 	req := httptest.NewRequest(http.MethodGet, "/x", nil)
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, req)

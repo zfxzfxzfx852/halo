@@ -23,7 +23,7 @@ func BenchmarkProxyThroughput(b *testing.B) {
 	if err != nil {
 		b.Fatal(err)
 	}
-	h := New(u, event.New(), slog.New(slog.NewTextHandler(io.Discard, nil)), nil)
+	h := New(u, event.New(), slog.New(slog.NewTextHandler(io.Discard, nil)), nil, nil)
 
 	b.ReportAllocs()
 	b.ResetTimer()

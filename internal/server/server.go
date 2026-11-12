@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"halo/internal/approval"
 	"halo/internal/config"
 	"halo/internal/store"
 	"halo/web"
@@ -26,17 +27,19 @@ type Server struct {
 	http         *http.Server
 	store        *store.Store
 	hub          *Hub
+	approvals    *approval.Manager
 	proxyHandler http.Handler
 }
 
 // New 构建服务实例。
-func New(cfg *config.Config, log *slog.Logger, st *store.Store, hub *Hub, proxyHandler http.Handler) *Server {
+func New(cfg *config.Config, log *slog.Logger, st *store.Store, hub *Hub, approvals *approval.Manager, proxyHandler http.Handler) *Server {
 	mux := http.NewServeMux()
 	s := &Server{
 		cfg:          cfg,
 		log:          log,
 		store:        st,
 		hub:          hub,
+		approvals:    approvals,
 		proxyHandler: proxyHandler,
 	}
 
@@ -46,6 +49,8 @@ func New(cfg *config.Config, log *slog.Logger, st *store.Store, hub *Hub, proxyH
 	mux.HandleFunc("GET /api/v1/events", s.listEvents)
 	mux.HandleFunc("GET /api/v1/events/{id}", s.getEvent)
 	mux.HandleFunc("GET /api/v1/stats", s.stats)
+	mux.HandleFunc("GET /api/v1/approvals", s.listApprovals)
+	mux.HandleFunc("POST /api/v1/approvals/{id}", s.resolveApproval)
 	mux.HandleFunc("GET /api/v1/stream", hub.ServeWS)
 
 	// 嵌入式控制台（iOS 风格 UI）。
