@@ -15,12 +15,12 @@
 |---|---|---|---|
 | M0 地基 | W1–W2 | 已完成 | v0.0.1-week1、v0.0.2-week2 |
 | M1 Observe | W3–W6 | 已完成 | v0.1.0-http-proxy、v0.2.0-mcp、v0.3.0-store-ws、v0.4.0-console |
-| M2 Guard | W7–W10 | 进行中（W7–W9 已完成） | v0.5.0-policy、v0.6.0-detect、v0.7.0-approval-sandbox |
+| M2 Guard | W7–W10 | 已完成 | v0.5.0-policy、v0.6.0-detect、v0.7.0-approval-sandbox、v0.8.0-audit |
 | M3 打磨 | W11–W12 | 待开始 | — |
 | M4 引爆 | W13–W14 | 待开始 | — |
 | M5 二波 | W15–W16 | 待开始 | — |
 
-远程仓库：`github.com/zfxzfxzfx852/halo`（私有，main 与 9 个 tag 已同步，提交署名 zfxzfxzfx852）。
+远程仓库：`github.com/zfxzfxzfx852/halo`（私有，main 与 10 个 tag 已同步，提交署名 zfxzfxzfx852）。
 
 ---
 
@@ -168,7 +168,7 @@ Agent ──► Halo 透明代理(拦截) ──► 策略引擎 ──► 检�
 - 验收：未审批不执行；越权/超时被正确终止
 - 备份点：tag `v0.7.0-approval-sandbox`
 
-#### W10（01/11–01/17）审计与回放
+#### W10（01/11–01/17）审计与回放 ✅ 已完成（2026-11-12）
 - 目标：防篡改审计链
 - 任务：
   - 哈希链：每条记录含前一条哈希，可校验完整性

@@ -28,6 +28,23 @@ export interface Finding {
   field?: string
 }
 
+export interface DecisionRecord {
+  decision: 'allow' | 'deny' | 'ask'
+  reason: string
+  policy?: string
+  reviewedBy?: string
+  reviewedAt?: string
+}
+
+// 后端 approval.Request 的 JSON 字段为大写开头。
+export interface ApprovalRequest {
+  ID: string
+  EventID: string
+  Summary: string
+  Risk: RiskLevel
+  CreatedAt: string
+}
+
 export interface HaloEvent {
   id: string
   type: EventType
@@ -39,6 +56,7 @@ export interface HaloEvent {
   request?: Payload
   response?: Payload
   toolCall?: ToolCall
+  decision?: DecisionRecord
   risk: RiskLevel
   findings?: Finding[]
   parentId?: string

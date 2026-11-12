@@ -313,3 +313,55 @@ main {
   color: #fff;
   border-radius: 12px;
 }
+
+/* 审批中心 */
+.approval-list {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.approval-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: 0 1px 10px var(--shadow);
+}
+.approval-info strong {
+  font-size: 15px;
+  letter-spacing: -0.2px;
+}
+.approval-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 6px;
+}
+.approval-actions {
+  display: flex;
+  gap: 8px;
+}
+.ap-btn {
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.ap-btn:active {
+  transform: scale(0.96);
+}
+.ap-btn.allow {
+  background: var(--green);
+  color: #fff;
+}
+.ap-btn.deny {
+  background: color-mix(in srgb, var(--red) 14%, transparent);
+  color: var(--red);
+}

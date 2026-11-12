@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"halo/internal/approval"
+	"halo/internal/audit"
 	"halo/internal/config"
 	"halo/internal/detect"
 	"halo/internal/event"
@@ -123,8 +124,16 @@ func main() {
 	log.Info("halo stopped")
 }
 
-// runCollector 订阅总线，检测富化后持久化并广播给 WebSocket 客户端。
+// runCollector 订阅总线，检测富化后持久化、写入审计链并广播。
 func runCollector(bus event.Bus, st *store.Store, hub *server.Hub, det *detect.Engine, log *slog.Logger) {
+	// 从存储恢复哈希链头，重启后继续延伸而非重新开始。
+	chain := audit.NewChain(0, "")
+	if last, ok, err := st.LastAuditRecord(context.Background()); err != nil {
+		log.Error("restore audit chain failed", "err", err)
+	} else if ok {
+		chain = audit.NewChain(last.Seq, last.Hash)
+	}
+
 	sub := bus.Subscribe()
 	go func() {
 		defer sub.Close()
@@ -132,6 +141,11 @@ func runCollector(bus event.Bus, st *store.Store, hub *server.Hub, det *detect.E
 			enrich(e, det)
 			if err := st.InsertEvent(context.Background(), e); err != nil {
 				log.Error("persist event failed", "err", err)
+			}
+			if rec, err := chain.Append(e); err != nil {
+				log.Error("audit append failed", "err", err)
+			} else if err := st.InsertAuditRecord(context.Background(), rec); err != nil {
+				log.Error("persist audit record failed", "err", err)
 			}
 			hub.Broadcast(e)
 		}

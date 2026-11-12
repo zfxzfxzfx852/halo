@@ -51,6 +51,8 @@ func New(cfg *config.Config, log *slog.Logger, st *store.Store, hub *Hub, approv
 	mux.HandleFunc("GET /api/v1/stats", s.stats)
 	mux.HandleFunc("GET /api/v1/approvals", s.listApprovals)
 	mux.HandleFunc("POST /api/v1/approvals/{id}", s.resolveApproval)
+	mux.HandleFunc("GET /api/v1/audit/verify", s.verifyAudit)
+	mux.HandleFunc("GET /api/v1/audit/export", s.exportAudit)
 	mux.HandleFunc("GET /api/v1/stream", hub.ServeWS)
 
 	// 嵌入式控制台（iOS 风格 UI）。

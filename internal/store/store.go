@@ -72,6 +72,14 @@ CREATE INDEX IF NOT EXISTS idx_events_created ON events(created_at);
 CREATE INDEX IF NOT EXISTS idx_events_type ON events(type);
 CREATE INDEX IF NOT EXISTS idx_events_session ON events(session_id);
 CREATE INDEX IF NOT EXISTS idx_events_risk ON events(risk);
+
+CREATE TABLE IF NOT EXISTS audit (
+	seq INTEGER PRIMARY KEY,
+	event_id TEXT NOT NULL,
+	hash TEXT NOT NULL,
+	prev_hash TEXT NOT NULL,
+	created_at INTEGER NOT NULL
+);
 	`)
 	return err
 }
@@ -185,6 +193,53 @@ func (s *Store) PurgeBefore(ctx context.Context, before time.Time) (int64, error
 		return 0, err
 	}
 	return res.RowsAffected()
+}
+
+// InsertAuditRecord 写入一条审计哈希链记录。
+func (s *Store) InsertAuditRecord(ctx context.Context, r model.AuditRecord) error {
+	_, err := s.db.ExecContext(ctx, `
+INSERT INTO audit (seq, event_id, hash, prev_hash, created_at)
+VALUES (?, ?, ?, ?, ?)`,
+		r.Seq, r.EventID, r.Hash, r.PrevHash, r.Timestamp.UnixNano())
+	return err
+}
+
+// ListAuditRecords 按 seq 升序返回全部审计记录。
+func (s *Store) ListAuditRecords(ctx context.Context) ([]model.AuditRecord, error) {
+	rows, err := s.db.QueryContext(ctx,
+		"SELECT seq, event_id, hash, prev_hash, created_at FROM audit ORDER BY seq ASC")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []model.AuditRecord
+	for rows.Next() {
+		var r model.AuditRecord
+		var ts int64
+		if err := rows.Scan(&r.Seq, &r.EventID, &r.Hash, &r.PrevHash, &ts); err != nil {
+			return nil, err
+		}
+		r.Timestamp = time.Unix(0, ts)
+		out = append(out, r)
+	}
+	return out, rows.Err()
+}
+
+// LastAuditRecord 返回最新一条审计记录；无记录时 ok=false。
+func (s *Store) LastAuditRecord(ctx context.Context) (r model.AuditRecord, ok bool, err error) {
+	var ts int64
+	err = s.db.QueryRowContext(ctx,
+		"SELECT seq, event_id, hash, prev_hash, created_at FROM audit ORDER BY seq DESC LIMIT 1").
+		Scan(&r.Seq, &r.EventID, &r.Hash, &r.PrevHash, &ts)
+	if errors.Is(err, sql.ErrNoRows) {
+		return model.AuditRecord{}, false, nil
+	}
+	if err != nil {
+		return model.AuditRecord{}, false, err
+	}
+	r.Timestamp = time.Unix(0, ts)
+	return r, true, nil
 }
 
 // Close 关闭数据库。
