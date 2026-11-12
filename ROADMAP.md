@@ -17,10 +17,10 @@
 | M1 Observe | W3–W6 | 已完成 | v0.1.0-http-proxy、v0.2.0-mcp、v0.3.0-store-ws、v0.4.0-console |
 | M2 Guard | W7–W10 | 已完成 | v0.5.0-policy、v0.6.0-detect、v0.7.0-approval-sandbox、v0.8.0-audit |
 | M3 打磨 | W11–W12 | 已完成 | v0.9.0-install、v1.0.0-rc1 |
-| M4 引爆 | W13–W14 | 待开始 | — |
+| M4 引爆 | W13–W14 | W13 已完成 | v1.0.0-rc2 |
 | M5 二波 | W15–W16 | 待开始 | — |
 
-远程仓库：`github.com/zfxzfxzfx852/halo`（私有，main 与 12 个 tag 已同步，提交署名 zfxzfxzfx852）。
+远程仓库：`github.com/zfxzfxzfx852/halo`（私有，main 与 13 个 tag 已同步，提交署名 zfxzfxzfx852）。
 
 ---
 
@@ -192,9 +192,10 @@ Agent ──► Halo 透明代理(拦截) ──► 策略引擎 ──► 检�
 
 ### M4 引爆（W13–W14）
 
-#### W13（02/01–02/07）首发准备
+#### W13（02/01–02/07）首发准备 ✅ 已完成（2026-11-12）
 - 任务：落地页、演示视频、首发物料（中英）、媒体/KOL 名单、内测反馈收口、发布候选 `v1.0.0-rc2`
-- 验收：所有发布素材就位，发布时间表冻结
+- 交付：`website/`（iOS 落地页）、`docs/promo/`（分镜、演示视频/GIF、中英物料、媒体名单、发布时间表、内测清单）
+- 备份点：tag `v1.0.0-rc2`
 
 #### W14（02/08–02/14）全球首发
 - 任务：Hacker News + Reddit + Product Hunt + X 首发；国内 V2EX/掘金/知乎/公众号/即刻/DeepSeek 社区；发布 `v1.0.0`
