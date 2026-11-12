@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Halo — 本地优先的 AI Agent 可观测与安全控制平面</title>
+  <meta name="description" content="Halo 透明拦截 AI Agent 与模型/工具之间的每一次调用，实时可视化、策略管控、沙箱隔离与防篡改审计。本地优先、零依赖、一行启动。" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23007aff'/></svg>" />
+</head>
+<body>
+
+  <!-- ============ NAV ============ -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top"><span class="brand-mark"></span>Halo</a>
+      <div class="nav-links">
+        <a href="#features" data-en="Features">特性</a>
+        <a href="#how" data-en="How it works">原理</a>
+        <a href="#gallery" data-en="Screenshots">界面</a>
+        <a href="#install" data-en="Install">安装</a>
+        <button class="lang-toggle" id="langToggle">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top">
+
+    <!-- ============ HERO ============ -->
+    <header class="hero">
+      <div class="container">
+        <span class="eyebrow"><span class="dot"></span><span data-en="Local-first · Self-hosted · Zero telemetry">本地优先 · 自托管 · 零遥测</span></span>
+        <h1>
+          <span data-en="See and secure every">看见并守护 Agent 的</span><br />
+          <span class="grad" data-en="AI agent call">每一次调用</span>
+        </h1>
+        <p class="lead" data-en="Halo transparently intercepts every call between your AI agents and the models or tools they use — real-time visibility, policy control, sandboxing and tamper-proof audit, in one binary.">Halo 透明拦截 AI Agent 与模型/工具之间的每一次调用，把实时可视化、策略管控、沙箱隔离与防篡改审计收进一个二进制，一行启动。</p>
+        <div class="hero-actions">
+          <a href="#install" class="btn btn-primary" data-en="Quick start">快速开始</a>
+          <a href="https://github.com/zfxzfxzfx852/halo" class="btn btn-secondary" data-en="Star on GitHub">GitHub 加星</a>
+        </div>
+
+        <div class="install">
+          <code id="installCmd">curl -fsSL https://raw.githubusercontent.com/zfxzfxzfx852/halo/main/scripts/install.sh | sh</code>
+          <button class="copy-btn" id="copyBtn" data-en="Copy">复制</button>
+        </div>
+
+        <div class="hero-shot reveal">
+          <img src="assets/graph.png" alt="Halo 实时调用图谱" data-en-alt="Halo real-time call graph" />
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- ============ STATS ============ -->
+      <div class="stats reveal">
+        <div class="stat"><div class="num">1</div><div class="lbl" data-en="single binary, zero deps">单二进制零依赖</div></div>
+        <div class="stat"><div class="num">40µs</div><div class="lbl" data-en="per decision, p50">单次决策耗时</div></div>
+        <div class="stat"><div class="num">70%+</div><div class="lbl" data-en="core test coverage">核心测试覆盖率</div></div>
+        <div class="stat"><div class="num">0</div><div class="lbl" data-en="data leaves your machine">数据离开本机</div></div>
+      </div>
+    </div>
+
+    <!-- ============ FEATURES ============ -->
+    <section id="features">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2 data-en="Everything you need to trust your agents">信任 Agent 所需的一切</h2>
+          <p data-en="From a flight recorder to an airbag and a control tower — built for developers, not just security teams.">从飞行记录仪、安全气囊到控制台——为开发者打造，而不只是给安全团队。</p>
+        </div>
+        <div class="grid grid-3">
+          <div class="card reveal">
+            <div class="ico blue">⟁</div>
+            <h3 data-en="Zero-instrumentation">零侵入接入</h3>
+            <p data-en="No agent code changes. Transparent proxy for MCP (stdio/SSE/HTTP) and OpenAI-compatible APIs.">不改 Agent 代码，透明代理 MCP（stdio/SSE/HTTP）与 OpenAI 兼容 API。</p>
+          </div>
+          <div class="card reveal">
+            <div class="ico teal">◉</div>
+            <h3 data-en="Real-time observability">实时可观测</h3>
+            <p data-en="Live event stream and an interactive call graph. Risk levels are visible at a glance.">实时事件流与可交互调用图谱，风险等级一目了然。</p>
+          </div>
+          <div class="card reveal">
+            <div class="ico purple">▤</div>
+            <h3 data-en="Policy control">策略管控</h3>
+            <p data-en="Declarative allow / deny / human-approval rules with hot reload and ordered matching.">声明式 allow / deny / 人工审批规则，热加载、按序匹配。</p>
+          </div>
+          <div class="card reveal">
+            <div class="ico red">⚠</div>
+            <h3 data-en="Threat detection">安全检测</h3>
+            <p data-en="Detect prompt injection, jailbreak, PII and secrets — fully offline, with redaction.">离线识别提示注入、越狱、PII 与密钥，并自动脱敏。</p>
+          </div>
+          <div class="card reveal">
+            <div class="ico orange">▣</div>
+            <h3 data-en="Sandboxed execution">沙箱隔离</h3>
+            <p data-en="Run high-risk commands in isolated process groups; Docker / gVisor / Firecracker drivers on the roadmap.">高危命令在独立进程组中运行，预留 Docker/gVisor/Firecracker 驱动。</p>
+          </div>
+          <div class="card reveal">
+            <div class="ico green">⛓</div>
+            <h3 data-en="Tamper-proof audit">审计回放</h3>
+            <p data-en="A hash-chained audit log verifies integrity and replays entire sessions.">哈希链审计日志可校验完整性，完整回放会话。</p>
+          </div>
+          <div class="card reveal">
+            <div class="ico blue">⌂</div>
+            <h3 data-en="Local-first">本地优先</h3>
+            <p data-en="Your data never leaves the machine. Works with Ollama and local models; telemetry off by default.">数据不出本机，支持 Ollama 等本地模型，默认关闭遥测。</p>
+          </div>
+          <div class="card reveal">
+            <div class="ico green">⚙</div>
+            <h3 data-en="Interactive setup">交互向导</h3>
+            <p data-en="halo init generates config through a few questions; install via curl, Homebrew or Docker.">halo init 几个问题生成配置，支持 curl / Homebrew / Docker 安装。</p>
+          </div>
+          <div class="card reveal">
+            <div class="ico purple">◈</div>
+            <h3 data-en="One binary">单二进制</h3>
+            <p data-en="Go backend plus an embedded web console, statically compiled, CGO-free, easy to deploy.">Go 后端内嵌 Web 控制台，静态编译、无 CGO，部署极简。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section id="how">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2 data-en="How it works">工作原理</h2>
+          <p data-en="Halo sits in the middle, then records, decides and guards — without getting in the way.">Halo 位于调用链路中间，负责记录、决策与防护，却不挡路。</p>
+        </div>
+        <div class="arch reveal">
+          <div class="flow">
+            <span class="mut">Agent</span> ─► <span class="hl">Halo 透明代理</span> ─► <span class="mut">策略 / 检测 / 沙箱</span> ─► <span class="mut">模型 / 工具</span><br />
+            <span class="mut">&nbsp;</span>&nbsp;&nbsp;&nbsp;│<br />
+            <span class="mut">&nbsp;</span>&nbsp;&nbsp;&nbsp;▼<br />
+            <span class="hl">事件存储 + 审计链 + WebSocket + 实时控制台</span>
+          </div>
+        </div>
+
+        <div class="steps" style="margin-top:20px">
+          <div class="step observe reveal">
+            <div class="phase" data-en="Phase 1 · Observe">阶段一 · 观察</div>
+            <h3 data-en="Start with zero risk">先零风险给价值</h3>
+            <ul>
+              <li data-en="Run in observe mode and watch every call flow in.">以 observe 模式运行，先看清每一次调用</li>
+              <li data-en="Build the graph and baseline normal behavior.">建立调用图谱，摸清正常行为基线</li>
+              <li data-en="No blocking, no chance of breaking workflows.">不阻断，绝无打断工作流的风险</li>
+            </ul>
+          </div>
+          <div class="step guard reveal">
+            <div class="phase" data-en="Phase 2 · Guard">阶段二 · 管控</div>
+            <h3 data-en="Turn on protection when ready">准备好再上防护</h3>
+            <ul>
+              <li data-en="Flip to guard mode with declarative policies.">切换 guard 模式，启用声明式策略</li>
+              <li data-en="Deny, ask for approval or sandbox risky calls.">对危险调用拒绝、人工审批或沙箱执行</li>
+              <li data-en="Every decision is recorded and auditable.">每个决策都被记录、可审计</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ GALLERY ============ -->
+    <section id="gallery">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2 data-en="A console that feels like home">熟悉而精致的控制台</h2>
+          <p data-en="An iOS-inspired interface: grouped cards, frosted glass, system colors and rounded corners.">iOS 风格界面：分组卡片、毛玻璃、系统色与圆角。</p>
+        </div>
+        <div class="gallery">
+          <figure class="shot reveal">
+            <img src="assets/events.png" alt="事件流" data-en-alt="Event stream" />
+            <figcaption><span class="ico blue" style="width:30px;height:30px;font-size:14px">◉</span><span data-en="Event stream — risk color-coded red / orange / gray">事件流 — 风险红 / 橙 / 灰分级</span></figcaption>
+          </figure>
+          <figure class="shot reveal">
+            <img src="assets/approval.png" alt="人工审批" data-en-alt="Human approval" />
+            <figcaption><span class="ico orange" style="width:30px;height:30px;font-size:14px">▤</span><span data-en="Human approval — deny or allow suspended calls">人工审批 — 对挂起调用拒绝或允许</span></figcaption>
+          </figure>
+          <figure class="shot reveal">
+            <img src="assets/detail.png" alt="事件详情" data-en-alt="Event detail" />
+            <figcaption><span class="ico purple" style="width:30px;height:30px;font-size:14px">⌕</span><span data-en="Detail drawer — full JSON of every call">详情抽屉 — 每次调用的完整 JSON</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ INSTALL ============ -->
+    <section id="install">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2 data-en="Up and running in seconds">几秒即可运行</h2>
+          <p data-en="Pick your favorite way to install. macOS and Linux supported; Windows via Docker / WSL.">选择你喜欢的安装方式，支持 macOS / Linux，Windows 可用 Docker / WSL。</p>
+        </div>
+        <div class="install-block reveal">
+          <div class="code-tabs">
+            <button class="code-tab active" data-tab="curl">curl</button>
+            <button class="code-tab" data-tab="brew">Homebrew</button>
+            <button class="code-tab" data-tab="docker">Docker</button>
+            <button class="code-tab" data-tab="source" data-en="Source">源码</button>
+          </div>
+          <div class="code-pane active" data-pane="curl">
+<span class="cmt"># 一键安装 / one-line install</span>
+curl -fsSL https://raw.githubusercontent.com/zfxzfxzfx852/halo/main/scripts/install.sh | sh
+
+<span class="cmt"># 生成配置并启动 / configure &amp; run</span>
+halo init && halo</div>
+          <div class="code-pane" data-pane="brew">
+brew install zfxzfxzfx852/tap/halo
+halo</div>
+          <div class="code-pane" data-pane="docker">
+<span class="cmt"># 多阶段镜像，非 root 运行 / non-root image</span>
+docker compose up -d</div>
+          <div class="code-pane" data-pane="source">
+git clone https://github.com/zfxzfxzfx852/halo.git && cd halo
+make build && ./bin/halo</div>
+
+          <div style="margin-top:22px">
+            <p style="color:var(--text-secondary);font-size:14px;margin-bottom:10px" data-en="Works with the tools you already use:">可接入你已经在用的工具：</p>
+            <div class="integrations">
+              <span class="pill">Claude Code</span>
+              <span class="pill">Cursor</span>
+              <span class="pill">Cline</span>
+              <span class="pill" data-en="Any MCP client">任意 MCP 客户端</span>
+              <span class="pill" data-en="OpenAI-compatible APIs">OpenAI 兼容 API</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FINAL CTA ============ -->
+    <section>
+      <div class="container">
+        <div class="cta-band reveal">
+          <h2 data-en="Give your agents a halo">给你的 Agent 加一道光环</h2>
+          <p data-en="Open source, MIT licensed, local-first. Start observing today, guard tomorrow.">开源、MIT 协议、本地优先。今天先观察，明天再管控。</p>
+          <a class="btn btn-primary" href="https://github.com/zfxzfxzfx852/halo" data-en="View on GitHub">在 GitHub 查看</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="container foot">
+      <a class="brand" href="#top"><span class="brand-mark"></span>Halo</a>
+      <div class="foot-links">
+        <a href="https://github.com/zfxzfxzfx852/halo">GitHub</a>
+        <a href="https://github.com/zfxzfxzfx852/halo/blob/main/docs/README.md" data-en="Docs">文档</a>
+        <a href="https://github.com/zfxzfxzfx852/halo/blob/main/ROADMAP.md" data-en="Roadmap">路线图</a>
+        <a href="https://github.com/zfxzfxzfx852/halo/blob/main/docs/SECURITY.md" data-en="Security">安全</a>
+      </div>
+      <div class="copy" data-en="Released under the MIT License.">MIT 协议开源</div>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
