@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"halo/internal/config"
+	"halo/internal/store"
 )
 
 // 构建期通过 -ldflags 注入。
@@ -17,21 +18,35 @@ var (
 	BuildTime = "unknown"
 )
 
-// Server 持有 HTTP 服务与依赖。
+// Server 持有 HTTP 服务与全部依赖。
 type Server struct {
 	cfg          *config.Config
 	log          *slog.Logger
 	http         *http.Server
+	store        *store.Store
+	hub          *Hub
 	proxyHandler http.Handler
 }
 
-// New 构建路由与服务实例。proxyHandler 为 nil 时仅提供内部 API。
-func New(cfg *config.Config, log *slog.Logger, proxyHandler http.Handler) *Server {
+// New 构建服务实例。
+func New(cfg *config.Config, log *slog.Logger, st *store.Store, hub *Hub, proxyHandler http.Handler) *Server {
 	mux := http.NewServeMux()
-	s := &Server{cfg: cfg, log: log, proxyHandler: proxyHandler}
+	s := &Server{
+		cfg:          cfg,
+		log:          log,
+		store:        st,
+		hub:          hub,
+		proxyHandler: proxyHandler,
+	}
 
+	// 内部 API
 	mux.HandleFunc("GET /healthz", s.healthz)
 	mux.HandleFunc("GET /api/v1/version", s.version)
+	mux.HandleFunc("GET /api/v1/events", s.listEvents)
+	mux.HandleFunc("GET /api/v1/events/{id}", s.getEvent)
+	mux.HandleFunc("GET /api/v1/stats", s.stats)
+	mux.HandleFunc("GET /api/v1/stream", hub.ServeWS)
+
 	if proxyHandler != nil {
 		// 兜底转发；更具体的内部路由优先匹配。
 		mux.Handle("/", proxyHandler)
@@ -60,7 +75,9 @@ func (s *Server) version(w http.ResponseWriter, _ *http.Request) {
 
 // Start 启动监听，阻塞直到服务结束。
 func (s *Server) Start() error {
-	s.log.Info("halo starting", "addr", s.http.Addr, "mode", s.cfg.Mode, "proxy", s.proxyHandler != nil)
+	s.log.Info("halo starting",
+		"addr", s.http.Addr, "mode", s.cfg.Mode,
+		"proxy", s.proxyHandler != nil, "wsClients", s.hub.ClientCount())
 	return s.http.ListenAndServe()
 }
 

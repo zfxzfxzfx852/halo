@@ -57,5 +57,6 @@ func buildResponseEvent(parentID string, h http.Header, status int, body []byte,
 			Status:  status,
 		},
 		ParentID: parentID,
+		Risk:     model.RiskNone,
 	}
 }
