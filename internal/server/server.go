@@ -19,18 +19,23 @@ var (
 
 // Server 持有 HTTP 服务与依赖。
 type Server struct {
-	cfg  *config.Config
-	log  *slog.Logger
-	http *http.Server
+	cfg          *config.Config
+	log          *slog.Logger
+	http         *http.Server
+	proxyHandler http.Handler
 }
 
-// New 构建路由与服务实例。
-func New(cfg *config.Config, log *slog.Logger) *Server {
+// New 构建路由与服务实例。proxyHandler 为 nil 时仅提供内部 API。
+func New(cfg *config.Config, log *slog.Logger, proxyHandler http.Handler) *Server {
 	mux := http.NewServeMux()
-	s := &Server{cfg: cfg, log: log}
+	s := &Server{cfg: cfg, log: log, proxyHandler: proxyHandler}
 
 	mux.HandleFunc("GET /healthz", s.healthz)
 	mux.HandleFunc("GET /api/v1/version", s.version)
+	if proxyHandler != nil {
+		// 兜底转发；更具体的内部路由优先匹配。
+		mux.Handle("/", proxyHandler)
+	}
 
 	s.http = &http.Server{
 		Addr:              cfg.Addr(),
@@ -55,7 +60,7 @@ func (s *Server) version(w http.ResponseWriter, _ *http.Request) {
 
 // Start 启动监听，阻塞直到服务结束。
 func (s *Server) Start() error {
-	s.log.Info("vigil starting", "addr", s.http.Addr, "mode", s.cfg.Mode)
+	s.log.Info("vigil starting", "addr", s.http.Addr, "mode", s.cfg.Mode, "proxy", s.proxyHandler != nil)
 	return s.http.ListenAndServe()
 }
 
