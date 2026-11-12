@@ -1,39 +1,116 @@
 package config
 
-import "os"
+import (
+	"fmt"
+	"os"
+	"strconv"
 
-// Mode 运行模式：observe 仅观察，guard 启用管控。
+	"gopkg.in/yaml.v3"
+)
+
+// 运行模式。
 const (
 	ModeObserve = "observe"
 	ModeGuard   = "guard"
 )
 
-// Config 全局配置。W1 先用环境变量 + 默认值，后续扩展 YAML。
-type Config struct {
-	Host    string
-	Port    string
-	DataDir string
-	Mode    string
+// UpstreamConfig 指向被代理的模型/API 地址。
+type UpstreamConfig struct {
+	BaseURL string `yaml:"baseUrl"`
 }
 
-// Default 从环境变量加载配置，缺省值保证零配置可启动。
-func Default() *Config {
+// StorageConfig 存储相关配置。
+type StorageConfig struct {
+	RetentionDays int `yaml:"retentionDays"`
+}
+
+// Config 全局配置。
+type Config struct {
+	Host     string         `yaml:"host"`
+	Port     string         `yaml:"port"`
+	DataDir  string         `yaml:"dataDir"`
+	Mode     string         `yaml:"mode"`
+	LogLevel string         `yaml:"logLevel"`
+	Upstream UpstreamConfig `yaml:"upstream"`
+	Storage  StorageConfig  `yaml:"storage"`
+}
+
+func defaults() *Config {
 	return &Config{
-		Host:    getEnv("VIGIL_HOST", "127.0.0.1"),
-		Port:    getEnv("VIGIL_PORT", "8787"),
-		DataDir: getEnv("VIGIL_DATA_DIR", "./data"),
-		Mode:    getEnv("VIGIL_MODE", ModeObserve),
+		Host:     "127.0.0.1",
+		Port:     "8787",
+		DataDir:  "./data",
+		Mode:     ModeObserve,
+		LogLevel: "info",
+		Upstream: UpstreamConfig{BaseURL: ""},
+		Storage:  StorageConfig{RetentionDays: 30},
 	}
+}
+
+// Load 按「默认值 → YAML 文件 → 环境变量」顺序加载并校验。
+// path 为空时跳过文件加载。
+func Load(path string) (*Config, error) {
+	cfg := defaults()
+	if path != "" {
+		if err := loadFile(cfg, path); err != nil {
+			return nil, err
+		}
+	}
+	applyEnv(cfg)
+	if err := cfg.validate(); err != nil {
+		return nil, err
+	}
+	return cfg, nil
+}
+
+func loadFile(cfg *Config, path string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read config %s: %w", path, err)
+	}
+	if err := yaml.Unmarshal(data, cfg); err != nil {
+		return fmt.Errorf("parse config %s: %w", path, err)
+	}
+	return nil
+}
+
+func applyEnv(cfg *Config) {
+	if v := os.Getenv("VIGIL_HOST"); v != "" {
+		cfg.Host = v
+	}
+	if v := os.Getenv("VIGIL_PORT"); v != "" {
+		cfg.Port = v
+	}
+	if v := os.Getenv("VIGIL_DATA_DIR"); v != "" {
+		cfg.DataDir = v
+	}
+	if v := os.Getenv("VIGIL_MODE"); v != "" {
+		cfg.Mode = v
+	}
+	if v := os.Getenv("VIGIL_LOG_LEVEL"); v != "" {
+		cfg.LogLevel = v
+	}
+	if v := os.Getenv("VIGIL_UPSTREAM_URL"); v != "" {
+		cfg.Upstream.BaseURL = v
+	}
+	if v := os.Getenv("VIGIL_RETENTION_DAYS"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			cfg.Storage.RetentionDays = n
+		}
+	}
+}
+
+func (c *Config) validate() error {
+	if c.Mode != ModeObserve && c.Mode != ModeGuard {
+		return fmt.Errorf("invalid mode %q: must be observe or guard", c.Mode)
+	}
+	if c.Storage.RetentionDays < 0 {
+		return fmt.Errorf("storage.retentionDays must be >= 0")
+	}
+	return nil
 }
 
 // Addr 返回监听地址。
 func (c *Config) Addr() string {
 	return c.Host + ":" + c.Port
-}
-
-func getEnv(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return fallback
 }
