@@ -41,28 +41,52 @@ func (c *Chain) Append(e *model.Event) (model.AuditRecord, error) {
 	return rec, nil
 }
 
-// Verify 校验审计链与对应事件的完整性，任何篡改或断链即返回错误。
-func Verify(records []model.AuditRecord, events map[string]*model.Event) error {
+// VerificationReport 描述一次审计校验的结果。
+type VerificationReport struct {
+	Valid         bool   `json:"valid"`
+	Checked       int    `json:"checked"`       // 内容成功重算校验的记录数
+	MissingEvents int    `json:"missingEvents"` // 对应事件已被保留策略清理的记录数
+	BrokenSeq     int64  `json:"brokenSeq,omitempty"`
+	Reason        string `json:"reason,omitempty"`
+}
+
+// Verify 校验审计链与对应事件的完整性。断链或现存事件被篡改即判 invalid；
+// 对应事件被保留策略清理时，链的连续性仍可校验，仅计入 MissingEvents。
+func Verify(records []model.AuditRecord, events map[string]*model.Event) VerificationReport {
+	report := VerificationReport{Valid: true}
 	prev := ""
 	for _, rec := range records {
 		if rec.PrevHash != prev {
-			return fmt.Errorf("seq %d: previous hash mismatch", rec.Seq)
+			report.Valid = false
+			report.BrokenSeq = rec.Seq
+			report.Reason = fmt.Sprintf("seq %d: previous hash mismatch", rec.Seq)
+			return report
 		}
 		e, ok := events[rec.EventID]
 		if !ok {
-			return fmt.Errorf("seq %d: missing event %s", rec.Seq, rec.EventID)
+			// 事件已被保留策略清理：哈希链仍连续，仅无法重算该条内容。
+			report.MissingEvents++
+			prev = rec.Hash
+			continue
 		}
 		payload, err := canonicalEvent(e)
 		if err != nil {
-			return err
+			report.Valid = false
+			report.BrokenSeq = rec.Seq
+			report.Reason = err.Error()
+			return report
 		}
 		sum := sha256.Sum256(append([]byte(prev), payload...))
 		if got := hex.EncodeToString(sum[:]); got != rec.Hash {
-			return fmt.Errorf("seq %d: hash mismatch (record may be tampered)", rec.Seq)
+			report.Valid = false
+			report.BrokenSeq = rec.Seq
+			report.Reason = fmt.Sprintf("seq %d: hash mismatch (record may be tampered)", rec.Seq)
+			return report
 		}
+		report.Checked++
 		prev = rec.Hash
 	}
-	return nil
+	return report
 }
 
 func canonicalEvent(e *model.Event) ([]byte, error) {

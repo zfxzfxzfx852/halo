@@ -57,13 +57,14 @@ func Load(path string) (*Config, error) {
 			return nil, err
 		}
 	}
-	applyEnv(cfg)
+	if err := applyEnv(cfg); err != nil {
+		return nil, err
+	}
 	if err := cfg.validate(); err != nil {
 		return nil, err
 	}
 	return cfg, nil
 }
-
 func loadFile(cfg *Config, path string) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -75,7 +76,7 @@ func loadFile(cfg *Config, path string) error {
 	return nil
 }
 
-func applyEnv(cfg *Config) {
+func applyEnv(cfg *Config) error {
 	if v := os.Getenv("HALO_HOST"); v != "" {
 		cfg.Host = v
 	}
@@ -98,15 +99,22 @@ func applyEnv(cfg *Config) {
 		cfg.Upstream.BaseURL = v
 	}
 	if v := os.Getenv("HALO_RETENTION_DAYS"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil {
-			cfg.Storage.RetentionDays = n
+		n, err := strconv.Atoi(v)
+		if err != nil {
+			return fmt.Errorf("invalid HALO_RETENTION_DAYS %q: %w", v, err)
 		}
+		cfg.Storage.RetentionDays = n
 	}
+	return nil
 }
 
 func (c *Config) validate() error {
 	if c.Mode != ModeObserve && c.Mode != ModeGuard {
 		return fmt.Errorf("invalid mode %q: must be observe or guard", c.Mode)
+	}
+	port, err := strconv.Atoi(c.Port)
+	if err != nil || port < 1 || port > 65535 {
+		return fmt.Errorf("invalid port %q: must be an integer in 1-65535", c.Port)
 	}
 	if c.Storage.RetentionDays < 0 {
 		return fmt.Errorf("storage.retentionDays must be >= 0")

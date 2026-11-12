@@ -46,8 +46,9 @@ func TestChainLinks(t *testing.T) {
 
 func TestVerifyOK(t *testing.T) {
 	recs, events := buildChain(t, 3)
-	if err := Verify(recs, events); err != nil {
-		t.Fatal(err)
+	rep := Verify(recs, events)
+	if !rep.Valid || rep.Checked != 3 || rep.MissingEvents != 0 {
+		t.Fatalf("unexpected report: %+v", rep)
 	}
 }
 
@@ -56,7 +57,7 @@ func TestVerifyTamperedEvent(t *testing.T) {
 	bad := *events["evt_b"]
 	bad.Method = "GET /hacked"
 	events["evt_b"] = &bad
-	if err := Verify(recs, events); err == nil {
+	if rep := Verify(recs, events); rep.Valid {
 		t.Fatal("expected tamper detection")
 	}
 }
@@ -64,16 +65,20 @@ func TestVerifyTamperedEvent(t *testing.T) {
 func TestVerifyBrokenLink(t *testing.T) {
 	recs, events := buildChain(t, 3)
 	recs[1].PrevHash = "deadbeef"
-	if err := Verify(recs, events); err == nil {
+	if rep := Verify(recs, events); rep.Valid {
 		t.Fatal("expected broken link")
 	}
 }
 
-func TestVerifyMissingEvent(t *testing.T) {
+func TestVerifyPurgedEvent(t *testing.T) {
 	recs, events := buildChain(t, 3)
 	delete(events, "evt_b")
-	if err := Verify(recs, events); err == nil {
-		t.Fatal("expected missing event error")
+	rep := Verify(recs, events)
+	if !rep.Valid {
+		t.Fatalf("purged event should keep chain valid, got %+v", rep)
+	}
+	if rep.MissingEvents != 1 || rep.Checked != 2 {
+		t.Fatalf("expected 1 missing and 2 checked, got %+v", rep)
 	}
 }
 

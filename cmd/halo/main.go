@@ -128,6 +128,9 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	// 数据保留：按配置周期清理过期事件（审计记录独立保留）。
+	startRetentionJanitor(ctx, st, cfg.Storage.RetentionDays, log)
+
 	select {
 	case err := <-errCh:
 		if !errors.Is(err, http.ErrServerClosed) {
@@ -210,4 +213,37 @@ func envOr(key, def string) string {
 
 func sandboxDriverNames(r *sandbox.Registry) []string {
 	return r.Names()
+}
+
+// startRetentionJanitor 启动数据保留清理循环；retentionDays<=0 表示永久保留。
+func startRetentionJanitor(ctx context.Context, st *store.Store, retentionDays int, log *slog.Logger) {
+	if retentionDays <= 0 {
+		return
+	}
+	ticker := time.NewTicker(24 * time.Hour)
+	purge := func() {
+		cutoff := time.Now().Add(-time.Duration(retentionDays) * 24 * time.Hour)
+		n, err := st.PurgeBefore(ctx, cutoff)
+		if err != nil {
+			if ctx.Err() == nil {
+				log.Error("retention purge failed", "err", err)
+			}
+			return
+		}
+		if n > 0 {
+			log.Info("retention purge complete", "removed", n)
+		}
+	}
+	go func() {
+		defer ticker.Stop()
+		purge() // 启动时先清理一次
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				purge()
+			}
+		}
+	}()
 }

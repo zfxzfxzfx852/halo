@@ -261,13 +261,32 @@ func buildWhere(f Filter) (string, []any) {
 		args = append(args, f.SessionID)
 	}
 	if f.RiskMin != "" && f.RiskMin != model.RiskNone {
-		conds = append(conds, "risk IN (?, ?, ?, ?)")
-		args = append(args,
-			string(model.RiskLow), string(model.RiskMedium),
-			string(model.RiskHigh), string(model.RiskCritical))
+		levels := riskLevelsAtOrAbove(f.RiskMin)
+		placeholders := strings.Repeat("?,", len(levels))
+		conds = append(conds, "risk IN ("+strings.TrimSuffix(placeholders, ",")+")")
+		for _, lv := range levels {
+			args = append(args, string(lv))
+		}
 	}
 	if len(conds) == 0 {
 		return "", args
 	}
 	return " WHERE " + strings.Join(conds, " AND "), args
+}
+
+// riskOrder 按严重度从低到高排列。
+var riskOrder = []model.RiskLevel{
+	model.RiskLow, model.RiskMedium, model.RiskHigh, model.RiskCritical,
+}
+
+// riskLevelsAtOrAbove 返回严重度不低于 min 的全部风险等级。
+func riskLevelsAtOrAbove(min model.RiskLevel) []model.RiskLevel {
+	threshold := min.Severity()
+	var out []model.RiskLevel
+	for _, lv := range riskOrder {
+		if lv.Severity() >= threshold {
+			out = append(out, lv)
+		}
+	}
+	return out
 }

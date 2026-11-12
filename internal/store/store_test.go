@@ -148,3 +148,18 @@ func TestBuildWhere(t *testing.T) {
 		t.Fatalf("full filter: w=%q args=%d", w, len(args))
 	}
 }
+
+func TestBuildWhereRiskMinThreshold(t *testing.T) {
+	levels := riskLevelsAtOrAbove(model.RiskHigh)
+	if len(levels) != 2 || levels[0] != model.RiskHigh || levels[1] != model.RiskCritical {
+		t.Fatalf("high threshold should be [high critical], got %v", levels)
+	}
+	w, args := buildWhere(Filter{RiskMin: model.RiskHigh})
+	if strings.Count(w, "?") != 2 || len(args) != 2 {
+		t.Fatalf("high filter should use 2 placeholders, got w=%q args=%v", w, args)
+	}
+	crit := riskLevelsAtOrAbove(model.RiskCritical)
+	if len(crit) != 1 || crit[0] != model.RiskCritical {
+		t.Fatalf("critical threshold should only include critical, got %v", crit)
+	}
+}

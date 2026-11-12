@@ -100,12 +100,22 @@ func TestAllEnvBranches(t *testing.T) {
 
 func TestBadRetentionEnv(t *testing.T) {
 	t.Setenv("HALO_RETENTION_DAYS", "abc")
-	cfg, err := Load("")
-	if err != nil {
-		t.Fatal(err)
+	if _, err := Load(""); err == nil {
+		t.Fatal("non-numeric retention env should fail instead of being ignored")
 	}
-	if cfg.Storage.RetentionDays != 30 {
-		t.Fatalf("bad retention should keep default, got %d", cfg.Storage.RetentionDays)
+}
+
+func TestBadPort(t *testing.T) {
+	t.Setenv("HALO_PORT", "not-a-port")
+	if _, err := Load(""); err == nil {
+		t.Fatal("invalid port should fail validation")
+	}
+}
+
+func TestPortOutOfRange(t *testing.T) {
+	t.Setenv("HALO_PORT", "70000")
+	if _, err := Load(""); err == nil {
+		t.Fatal("out-of-range port should fail validation")
 	}
 }
 

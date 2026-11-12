@@ -24,11 +24,8 @@ func (s *Server) verifyAudit(w http.ResponseWriter, r *http.Request) {
 		em[e.ID] = e
 	}
 
-	if err := audit.Verify(records, em); err != nil {
-		writeJSON(w, http.StatusOK, map[string]any{"valid": false, "error": err.Error()})
-		return
-	}
-	writeJSON(w, http.StatusOK, map[string]any{"valid": true, "records": len(records)})
+	report := audit.Verify(records, em)
+	writeJSON(w, http.StatusOK, report)
 }
 
 func (s *Server) exportAudit(w http.ResponseWriter, r *http.Request) {
