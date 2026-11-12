@@ -15,12 +15,12 @@
 |---|---|---|---|
 | M0 地基 | W1–W2 | 已完成 | v0.0.1-week1、v0.0.2-week2 |
 | M1 Observe | W3–W6 | 已完成 | v0.1.0-http-proxy、v0.2.0-mcp、v0.3.0-store-ws、v0.4.0-console |
-| M2 Guard | W7–W10 | 进行中（W7 已完成） | v0.5.0-policy |
+| M2 Guard | W7–W10 | 进行中（W7–W8 已完成） | v0.5.0-policy、v0.6.0-detect |
 | M3 打磨 | W11–W12 | 待开始 | — |
 | M4 引爆 | W13–W14 | 待开始 | — |
 | M5 二波 | W15–W16 | 待开始 | — |
 
-远程仓库：`github.com/zfxzfxzfx852/halo`（私有，main 与 7 个 tag 已同步，提交署名 zfxzfxzfx852）。
+远程仓库：`github.com/zfxzfxzfx852/halo`（私有，main 与 8 个 tag 已同步，提交署名 zfxzfxzfx852）。
 
 ---
 
@@ -147,7 +147,7 @@ Agent ──► Halo 透明代理(拦截) ──► 策略引擎 ──► 检�
 - 验收：给定测试策略集，决策结果 100% 符合预期
 - 备份点：tag `v0.5.0-policy`
 
-#### W8（12/28–01/03）检测引擎
+#### W8（12/28–01/03）检测引擎 ✅ 已完成（2026-11-12）
 - 目标：识别注入与敏感信息
 - 任务：
   - 规则/正则/AST 检测 prompt injection、jailbreak

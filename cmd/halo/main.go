@@ -1,0 +1,164 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"flag"
+	"log/slog"
+	"net/http"
+	"net/url"
+	"os"
+	"os/signal"
+	"path/filepath"
+	"syscall"
+	"time"
+
+	"halo/internal/config"
+	"halo/internal/detect"
+	"halo/internal/event"
+	"halo/internal/model"
+	"halo/internal/policy"
+	"halo/internal/proxy"
+	"halo/internal/server"
+	"halo/internal/store"
+)
+
+func main() {
+	configPath := flag.String("config", envOr("HALO_CONFIG", "halo.yaml"), "path to config file")
+	flag.Parse()
+
+	// 配置文件缺失时回退到默认值与环境变量，保证零配置可启动。
+	path := *configPath
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		path = ""
+	}
+	cfg, err := config.Load(path)
+	if err != nil {
+		slog.Error("config error", "err", err)
+		os.Exit(1)
+	}
+	log := newLogger(cfg.LogLevel)
+
+	if err := os.MkdirAll(cfg.DataDir, 0o755); err != nil {
+		log.Error("create data dir failed", "err", err)
+		os.Exit(1)
+	}
+
+	// 存储
+	st, err := store.Open(filepath.Join(cfg.DataDir, "halo.db"))
+	if err != nil {
+		log.Error("open store failed", "err", err)
+		os.Exit(1)
+	}
+	defer func() { _ = st.Close() }()
+
+	// 事件总线 + WebSocket Hub
+	bus := event.New()
+	hub := server.NewHub(log)
+	detector := detect.New()
+	runCollector(bus, st, hub, detector, log)
+
+	// 代理
+	// 加载策略引擎（可选）。
+	var engine *policy.Engine
+	if cfg.PolicyFile != "" {
+		pol, err := policy.LoadFile(cfg.PolicyFile)
+		if err != nil {
+			log.Error("load policy failed", "err", err)
+			os.Exit(1)
+		}
+		engine = policy.New(pol)
+		log.Info("policy loaded", "file", cfg.PolicyFile, "rules", len(pol.Rules))
+	}
+
+	var proxyHandler http.Handler
+	if cfg.Upstream.BaseURL != "" {
+		upstream, err := url.Parse(cfg.Upstream.BaseURL)
+		if err != nil {
+			log.Error("invalid upstream url", "err", err)
+			os.Exit(1)
+		}
+		// 仅 guard 模式启用阻断；observe 模式保持旁路观察。
+		var evaluator proxy.PolicyEvaluator
+		if engine != nil && cfg.Mode == config.ModeGuard {
+			evaluator = engine
+		}
+		proxyHandler = proxy.New(upstream, bus, log, evaluator)
+	}
+
+	srv := server.New(cfg, log, st, hub, proxyHandler)
+
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- srv.Start()
+	}()
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	select {
+	case err := <-errCh:
+		if !errors.Is(err, http.ErrServerClosed) {
+			log.Error("server error", "err", err)
+			os.Exit(1)
+		}
+	case <-ctx.Done():
+		log.Info("shutting down")
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := srv.Shutdown(shutdownCtx); err != nil {
+			log.Error("shutdown error", "err", err)
+			os.Exit(1)
+		}
+	}
+	log.Info("halo stopped")
+}
+
+// runCollector 订阅总线，检测富化后持久化并广播给 WebSocket 客户端。
+func runCollector(bus event.Bus, st *store.Store, hub *server.Hub, det *detect.Engine, log *slog.Logger) {
+	sub := bus.Subscribe()
+	go func() {
+		defer sub.Close()
+		for e := range sub.Events() {
+			enrich(e, det)
+			if err := st.InsertEvent(context.Background(), e); err != nil {
+				log.Error("persist event failed", "err", err)
+			}
+			hub.Broadcast(e)
+		}
+	}()
+}
+
+// enrich 运行离线检测，附加命中规则并把事件风险提升到检测到的最高等级。
+func enrich(e *model.Event, det *detect.Engine) {
+	findings := det.Inspect(e)
+	if len(findings) == 0 {
+		return
+	}
+	e.Findings = append(e.Findings, findings...)
+	if r := detect.RiskOf(findings); r.Severity() > e.Risk.Severity() {
+		e.Risk = r
+	}
+}
+
+func newLogger(level string) *slog.Logger {
+	var lvl slog.Level
+	switch level {
+	case "debug":
+		lvl = slog.LevelDebug
+	case "warn":
+		lvl = slog.LevelWarn
+	case "error":
+		lvl = slog.LevelError
+	default:
+		lvl = slog.LevelInfo
+	}
+	return slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: lvl}))
+}
+
+func envOr(key, def string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return def
+}
