@@ -148,3 +148,10 @@ rules:
 		t.Fatal("expected validation error")
 	}
 }
+
+func TestNilPolicyFailClosed(t *testing.T) {
+	e := New(nil)
+	if got := e.Decide(&model.Event{}); got != model.DecisionDeny {
+		t.Fatalf("nil policy should deny, got %s", got)
+	}
+}

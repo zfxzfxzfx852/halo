@@ -21,6 +21,8 @@ type compiledRule struct {
 	id    string
 	level model.RiskLevel
 	re    *regexp.Regexp
+	// valid 为可选的命中校验；返回 false 表示该候选命中应被丢弃。
+	valid func(match string) bool
 }
 
 // Engine 用离线规则扫描事件，输出命中的 Finding。
@@ -41,6 +43,9 @@ func (e *Engine) Inspect(ev *model.Event) []model.Finding {
 
 	for _, r := range e.rules {
 		for _, hit := range r.re.FindAllString(text, -1) {
+			if r.valid != nil && !r.valid(hit) {
+				continue
+			}
 			key := r.id + "|" + hit
 			if seen[key] {
 				continue

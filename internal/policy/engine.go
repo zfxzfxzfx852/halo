@@ -42,6 +42,11 @@ func (e *Engine) Evaluate(ev *model.Event) Result {
 	p := e.policy
 	e.mu.RUnlock()
 
+	if p == nil {
+		// 策略缺失时 fail-closed，避免在无策略情况下放行。
+		return Result{Decision: model.DecisionDeny, Reason: "no policy loaded; fail closed"}
+	}
+
 	s := extract(ev)
 	for _, r := range p.Rules {
 		// 风险超过规则上限时该规则不适用。

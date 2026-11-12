@@ -5,10 +5,10 @@ import "halo/internal/model"
 func injectionRules() []compiledRule {
 	return []compiledRule{
 		// 提示注入 / 越狱
-		must("injection.ignore_instructions", model.RiskHigh, `(?i)ignore (?:all |previous |prior )*instructions`),
-		must("injection.disregard", model.RiskHigh, `(?i)disregard (?:all|previous|prior|the) (?:instructions|rules|prompts)`),
-		must("injection.you_are_now", model.RiskHigh, `(?i)you are now [a-z]`),
-		must("injection.do_anything_now", model.RiskHigh, `(?i)do anything now`),
+		must("injection.ignore_instructions", model.RiskHigh, `(?i)ignore\s+(?:(?:all|previous|prior|the)\s+)*instructions`),
+		must("injection.disregard", model.RiskHigh, `(?i)disregard\s+(?:all|previous|prior|the)\s+(?:instructions|rules|prompts)`),
+		must("injection.you_are_now", model.RiskHigh, `(?i)you\s+are\s+now\s+[a-z]`),
+		must("injection.do_anything_now", model.RiskHigh, `(?i)do\s+anything\s+now`),
 		must("injection.role_tag", model.RiskHigh, `</?(?:system|user|assistant)>|\[(?:SYSTEM|INST|DAN)\]`),
 
 		// 命令注入

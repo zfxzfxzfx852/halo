@@ -47,7 +47,7 @@ func TestPIIDetected(t *testing.T) {
 	if !hasRule(e.Inspect(bodyEvent(`{"p":"13812345678"}`)), "pii.phone_cn") {
 		t.Fatal("phone")
 	}
-	if !hasRule(e.Inspect(bodyEvent(`{"id":"110101199003078888"}`)), "pii.id_card_cn") {
+	if !hasRule(e.Inspect(bodyEvent(`{"id":"110101199003078881"}`)), "pii.id_card_cn") {
 		t.Fatal("id card")
 	}
 }
