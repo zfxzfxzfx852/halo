@@ -18,22 +18,29 @@ import (
 
 const maxBodySize = 16 << 20 // 16 MiB
 
+// PolicyEvaluator 由策略引擎实现，用于转发前决策。
+type PolicyEvaluator interface {
+	Decide(ev *model.Event) model.Decision
+}
+
 // Handler 是透明代理处理器，负责转发并记录事件。
 type Handler struct {
 	upstream *url.URL
 	client   *http.Client
 	bus      event.Bus
 	log      *slog.Logger
+	policy   PolicyEvaluator
 	now      func() time.Time
 }
 
 // New 构建代理处理器。
-func New(upstream *url.URL, bus event.Bus, log *slog.Logger) *Handler {
+func New(upstream *url.URL, bus event.Bus, log *slog.Logger, pe PolicyEvaluator) *Handler {
 	return &Handler{
 		upstream: upstream,
 		client:   &http.Client{},
 		bus:      bus,
 		log:      log,
+		policy:   pe,
 		now:      time.Now,
 	}
 }
@@ -61,9 +68,19 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	copyHeaders(outReq.Header, r.Header)
 	outReq.Host = r.Host
 
-	h.bus.Publish(context.Background(), buildRequestEvent(eventID, r, reqBody, sessionID, ts))
+	reqEvent := buildRequestEvent(eventID, r, reqBody, sessionID, ts)
+	h.bus.Publish(context.Background(), reqEvent)
 	for _, e := range mcp.EventsFromRequest(reqBody, sessionID, ts) {
 		h.bus.Publish(context.Background(), e)
+	}
+
+	// 转发前决策：deny 直接阻断；ask 的人工审批在 W9 落地，当前保守阻断。
+	if h.policy != nil {
+		switch h.policy.Decide(reqEvent) {
+		case model.DecisionDeny, model.DecisionAsk:
+			h.block(w, eventID)
+			return
+		}
 	}
 
 	resp, err := h.client.Do(outReq)
@@ -116,6 +133,13 @@ func (h *Handler) proxyStream(w http.ResponseWriter, resp *http.Response, eventI
 
 func isStream(h http.Header) bool {
 	return strings.Contains(strings.ToLower(h.Get("Content-Type")), "text/event-stream")
+}
+
+// block 返回 403，请求不会被转发到上游。
+func (h *Handler) block(w http.ResponseWriter, eventID string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusForbidden)
+	_, _ = w.Write([]byte(`{"error":"blocked_by_halo_policy","eventId":"` + eventID + `"}`))
 }
 
 func sessionIDFrom(r *http.Request) string {

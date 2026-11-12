@@ -9,11 +9,12 @@ type Policy struct {
 
 // PolicyRule 描述单条匹配规则；空字段表示通配。
 type PolicyRule struct {
-	Name     string    `json:"name" yaml:"name"`
-	Tool     string    `json:"tool,omitempty" yaml:"tool,omitempty"`
-	Method   string    `json:"method,omitempty" yaml:"method,omitempty"`
-	Command  string    `json:"command,omitempty" yaml:"command,omitempty"`
-	Paths    []string  `json:"paths,omitempty" yaml:"paths,omitempty"`
-	Decision Decision  `json:"decision" yaml:"decision"`
-	MaxRisk  RiskLevel `json:"maxRisk,omitempty" yaml:"maxRisk,omitempty"`
+	Name     string            `json:"name" yaml:"name"`
+	Tool     string            `json:"tool,omitempty" yaml:"tool,omitempty"`
+	Method   string            `json:"method,omitempty" yaml:"method,omitempty"`
+	Command  string            `json:"command,omitempty" yaml:"command,omitempty"`
+	Paths    []string          `json:"paths,omitempty" yaml:"paths,omitempty"`
+	Args     map[string]string `json:"args,omitempty" yaml:"args,omitempty"`
+	Decision Decision          `json:"decision" yaml:"decision"`
+	MaxRisk  RiskLevel         `json:"maxRisk,omitempty" yaml:"maxRisk,omitempty"`
 }

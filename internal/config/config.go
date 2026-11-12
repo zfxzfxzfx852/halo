@@ -26,13 +26,14 @@ type StorageConfig struct {
 
 // Config 全局配置。
 type Config struct {
-	Host     string         `yaml:"host"`
-	Port     string         `yaml:"port"`
-	DataDir  string         `yaml:"dataDir"`
-	Mode     string         `yaml:"mode"`
-	LogLevel string         `yaml:"logLevel"`
-	Upstream UpstreamConfig `yaml:"upstream"`
-	Storage  StorageConfig  `yaml:"storage"`
+	Host       string         `yaml:"host"`
+	Port       string         `yaml:"port"`
+	DataDir    string         `yaml:"dataDir"`
+	Mode       string         `yaml:"mode"`
+	LogLevel   string         `yaml:"logLevel"`
+	PolicyFile string         `yaml:"policyFile"`
+	Upstream   UpstreamConfig `yaml:"upstream"`
+	Storage    StorageConfig  `yaml:"storage"`
 }
 
 func defaults() *Config {
@@ -89,6 +90,9 @@ func applyEnv(cfg *Config) {
 	}
 	if v := os.Getenv("HALO_LOG_LEVEL"); v != "" {
 		cfg.LogLevel = v
+	}
+	if v := os.Getenv("HALO_POLICY_FILE"); v != "" {
+		cfg.PolicyFile = v
 	}
 	if v := os.Getenv("HALO_UPSTREAM_URL"); v != "" {
 		cfg.Upstream.BaseURL = v

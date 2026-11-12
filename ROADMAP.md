@@ -15,12 +15,12 @@
 |---|---|---|---|
 | M0 地基 | W1–W2 | 已完成 | v0.0.1-week1、v0.0.2-week2 |
 | M1 Observe | W3–W6 | 已完成 | v0.1.0-http-proxy、v0.2.0-mcp、v0.3.0-store-ws、v0.4.0-console |
-| M2 Guard | W7–W10 | 待开始 | — |
+| M2 Guard | W7–W10 | 进行中（W7 已完成） | v0.5.0-policy |
 | M3 打磨 | W11–W12 | 待开始 | — |
 | M4 引爆 | W13–W14 | 待开始 | — |
 | M5 二波 | W15–W16 | 待开始 | — |
 
-远程仓库：`github.com/zfxzfxzfx852/halo`（私有，main 与 6 个 tag 已同步，提交署名 zfxzfxzfx852）。
+远程仓库：`github.com/zfxzfxzfx852/halo`（私有，main 与 7 个 tag 已同步，提交署名 zfxzfxzfx852）。
 
 ---
 
@@ -137,7 +137,7 @@ Agent ──► Halo 透明代理(拦截) ──► 策略引擎 ──► 检�
 
 ### M2 Guard（W7–W10）
 
-#### W7（12/21–12/27）策略引擎
+#### W7（12/21–12/27）策略引擎 ✅ 已完成（2026-11-12）
 - 目标：声明式策略可决策
 - 任务：
   - 策略 YAML 结构与加载（工具/命令/路径/参数规则）

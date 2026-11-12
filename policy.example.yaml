@@ -1,0 +1,36 @@
+version: "1"
+
+# 无规则命中时的默认决策：allow / deny / ask
+default: allow
+
+rules:
+  # 高危命令执行工具直接拒绝
+  - name: block-command-exec
+    tool: "exec"
+    decision: deny
+
+  # 读取敏感系统目录需要人工确认
+  - name: protect-system-files
+    tool: "read_file"
+    paths:
+      - "/etc/*"
+      - "/root/*"
+    decision: ask
+
+  # 禁止访问云厂商内网元数据地址
+  - name: block-cloud-metadata
+    tool: "http_request"
+    args:
+      url: "http://169.254.169.254*"
+    decision: deny
+
+  # 禁止 curl 外发命令
+  - name: no-curl
+    command: "curl *"
+    decision: deny
+
+  # 低风险写操作自动放行；事件风险超过 low 时本规则不适用
+  - name: safe-writes
+    tool: "write_file"
+    maxRisk: low
+    decision: allow
