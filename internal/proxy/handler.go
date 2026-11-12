@@ -13,6 +13,7 @@ import (
 
 	"halo/internal/event"
 	"halo/internal/model"
+	"halo/internal/proxy/mcp"
 )
 
 const maxBodySize = 16 << 20 // 16 MiB
@@ -61,6 +62,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	outReq.Host = r.Host
 
 	h.bus.Publish(context.Background(), buildRequestEvent(eventID, r, reqBody, sessionID, ts))
+	for _, e := range mcp.EventsFromRequest(reqBody, sessionID, ts) {
+		h.bus.Publish(context.Background(), e)
+	}
 
 	resp, err := h.client.Do(outReq)
 	if err != nil {
