@@ -9,6 +9,7 @@ import (
 
 	"halo/internal/config"
 	"halo/internal/store"
+	"halo/web"
 )
 
 // 构建期通过 -ldflags 注入。
@@ -47,9 +48,24 @@ func New(cfg *config.Config, log *slog.Logger, st *store.Store, hub *Hub, proxyH
 	mux.HandleFunc("GET /api/v1/stats", s.stats)
 	mux.HandleFunc("GET /api/v1/stream", hub.ServeWS)
 
+	// 嵌入式控制台（iOS 风格 UI）。
+	mux.HandleFunc("GET /console", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/console/", http.StatusTemporaryRedirect)
+	})
+	mux.Handle("GET /console/", http.StripPrefix("/console/", web.Handler()))
+
 	if proxyHandler != nil {
-		// 兜底转发；更具体的内部路由优先匹配。
+		// 其余路径兜底转发；内部 API 与控制台优先匹配。
 		mux.Handle("/", proxyHandler)
+	} else {
+		// 无上游时，根路径引导到控制台。
+		mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/" {
+				http.Redirect(w, r, "/console/", http.StatusTemporaryRedirect)
+				return
+			}
+			http.NotFound(w, r)
+		})
 	}
 
 	s.http = &http.Server{

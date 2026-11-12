@@ -2,12 +2,16 @@ BINARY := halo
 PKG := ./cmd/halo
 GOFLAGS := -trimpath
 
-.PHONY: all build run test fmt vet lint clean ci web-install web-dev web-build tidy
+.PHONY: all build build-go run test fmt vet lint clean ci web-install web-dev web-build tidy
 
 all: build
 
-## build: 编译后端二进制
-build:
+## build: 先构建前端，再编译含嵌入式 UI 的完整二进制
+build: web-build
+	go build $(GOFLAGS) -o bin/$(BINARY) $(PKG)
+
+## build-go: 仅编译后端（要求 web/dist 已存在）
+build-go:
 	go build $(GOFLAGS) -o bin/$(BINARY) $(PKG)
 
 ## run: 直接运行
