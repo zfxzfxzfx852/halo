@@ -6,8 +6,10 @@
 
 给任何 AI Agent 装上「飞行记录仪 + 安全气囊 + 控制台」。
 
-<!-- 徽章占位（CI/版本/license/覆盖率，W12 补齐） -->
-<!-- 演示 GIF 占位（W6 起替换） -->
+[![CI](https://github.com/zfxzfxzfx852/halo/actions/workflows/ci.yml/badge.svg)](https://github.com/zfxzfxzfx852/halo/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Go Report](https://img.shields.io/badge/go-1.23-00ADD8.svg)](https://go.dev)
+<!-- 演示 GIF 占位（首发前替换） -->
 
 </div>
 

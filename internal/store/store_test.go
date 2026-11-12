@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -101,5 +102,49 @@ func TestPurge(t *testing.T) {
 	}
 	if _, err := s.GetEvent(ctx, "old"); !errors.Is(err, ErrNotFound) {
 		t.Fatal("old event should be purged")
+	}
+}
+
+func TestAuditRecords(t *testing.T) {
+	s := newTestStore(t)
+	ctx := context.Background()
+
+	if _, ok, err := s.LastAuditRecord(ctx); err != nil || ok {
+		t.Fatalf("empty last: ok=%v err=%v", ok, err)
+	}
+
+	recs := []model.AuditRecord{
+		{Seq: 1, EventID: "e1", Hash: "h1", PrevHash: "", Timestamp: time.Now()},
+		{Seq: 2, EventID: "e2", Hash: "h2", PrevHash: "h1", Timestamp: time.Now()},
+	}
+	for _, r := range recs {
+		if err := s.InsertAuditRecord(ctx, r); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	got, err := s.ListAuditRecords(ctx)
+	if err != nil || len(got) != 2 {
+		t.Fatalf("list audit: len=%d err=%v", len(got), err)
+	}
+	if got[0].Hash != "h1" || got[1].PrevHash != "h1" {
+		t.Fatalf("audit link wrong: %+v", got)
+	}
+
+	last, ok, err := s.LastAuditRecord(ctx)
+	if err != nil || !ok || last.Seq != 2 {
+		t.Fatalf("last: %+v ok=%v err=%v", last, ok, err)
+	}
+}
+
+func TestBuildWhere(t *testing.T) {
+	if w, args := buildWhere(Filter{}); w != "" || len(args) != 0 {
+		t.Fatalf("empty filter: w=%q args=%v", w, args)
+	}
+	w, args := buildWhere(Filter{
+		Type: "request", Protocol: "http", SessionID: "s1", RiskMin: model.RiskLow,
+	})
+	if !strings.Contains(w, "WHERE") || len(args) != 7 {
+		t.Fatalf("full filter: w=%q args=%d", w, len(args))
 	}
 }

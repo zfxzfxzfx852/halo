@@ -16,11 +16,11 @@
 | M0 地基 | W1–W2 | 已完成 | v0.0.1-week1、v0.0.2-week2 |
 | M1 Observe | W3–W6 | 已完成 | v0.1.0-http-proxy、v0.2.0-mcp、v0.3.0-store-ws、v0.4.0-console |
 | M2 Guard | W7–W10 | 已完成 | v0.5.0-policy、v0.6.0-detect、v0.7.0-approval-sandbox、v0.8.0-audit |
-| M3 打磨 | W11–W12 | 进行中（W11 已完成） | v0.9.0-install |
+| M3 打磨 | W11–W12 | 已完成 | v0.9.0-install、v1.0.0-rc1 |
 | M4 引爆 | W13–W14 | 待开始 | — |
 | M5 二波 | W15–W16 | 待开始 | — |
 
-远程仓库：`github.com/zfxzfxzfx852/halo`（私有，main 与 11 个 tag 已同步，提交署名 zfxzfxzfx852）。
+远程仓库：`github.com/zfxzfxzfx852/halo`（私有，main 与 12 个 tag 已同步，提交署名 zfxzfxzfx852）。
 
 ---
 
@@ -185,7 +185,7 @@ Agent ──► Halo 透明代理(拦截) ──► 策略引擎 ──► 检�
 - 验收：干净环境一条命令安装并跑通
 - 备份点：tag `v0.9.0-install`
 
-#### W12（01/25–01/31）文档/i18n/CI/性能
+#### W12（01/25–01/31）文档/i18n/CI/性能 ✅ 已完成（2026-11-12）
 - 任务：文档站、中英文 i18n、benchmark 报告、GitHub Actions（lint/test/build/coverage）、安全白皮书与威胁模型
 - 验收：CI 全绿；核心包覆盖率 ≥ 70%；内测分发
 - 备份点：tag `v1.0.0-rc1`
