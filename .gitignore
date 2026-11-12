@@ -1,0 +1,36 @@
+# Binaries
+/bin/
+*.exe
+*.dll
+*.so
+*.dylib
+vigil
+
+# Go
+*.test
+*.out
+coverage.txt
+
+# Data / runtime
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+data/
+
+# Node / web
+node_modules/
+web/dist/
+web/node_modules/
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+*.swp
+
+# Env
+.env
+.env.local
