@@ -74,6 +74,7 @@ Agent ─► Halo 透明代理 ─► 策略/检测/沙箱 ─► 模型/工具
 - 开发路线图：[`ROADMAP.md`](./ROADMAP.md)
 - 接入指南：[`docs/integrations/`](./docs/integrations/README.md)
 - 贡献指南：[`CONTRIBUTING.md`](./CONTRIBUTING.md) · 更新记录：[`CHANGELOG.md`](./CHANGELOG.md) · 行为准则：[`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md)
+- 问题反馈邮箱：[z18309521808@outlook.com](mailto:z18309521808@outlook.com)
 
 ### 合规声明
 
@@ -117,6 +118,7 @@ Point your tool's Base URL at Halo. See [docs/integrations](./docs/integrations/
 
 - [Contributing guide](./CONTRIBUTING.md) · [Changelog](./CHANGELOG.md) · [Code of Conduct](./CODE_OF_CONDUCT.md)
 - [Security policy](./docs/SECURITY.md) · [Roadmap](./ROADMAP.md)
+- Feedback: [z18309521808@outlook.com](mailto:z18309521808@outlook.com)
 
 ### License
 

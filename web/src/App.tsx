@@ -372,6 +372,7 @@ export default function App() {
       <footer className="foot">
         <span>Halo · 本地优先 · 数据不出机器</span>
         <span>{stats?.Total || 0} 事件已归档</span>
+        <a className="foot-mail" href="mailto:z18309521808@outlook.com">问题反馈：z18309521808@outlook.com</a>
       </footer>
 
       {selected && (

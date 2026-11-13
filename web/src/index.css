@@ -2446,6 +2446,15 @@ body::before {
   color: var(--muted);
 }
 
+.foot-mail {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.foot-mail:hover {
+  color: var(--ink);
+}
+
 /* 零数据引导 */
 .onboarding {
   display: grid;
