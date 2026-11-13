@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"flag"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -48,8 +49,15 @@ func main() {
 		return
 	}
 
+	versionFlag := flag.Bool("version", false, "print version and exit")
+	shortVersion := flag.Bool("v", false, "print version and exit")
 	configPath := flag.String("config", envOr("HALO_CONFIG", "halo.yaml"), "path to config file")
 	flag.Parse()
+
+	if *versionFlag || *shortVersion {
+		fmt.Printf("halo %s\n", version)
+		return
+	}
 
 	// 配置文件缺失时回退到默认值与环境变量，保证零配置可启动。
 	path := *configPath
