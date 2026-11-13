@@ -56,8 +56,62 @@ export interface HaloEvent {
   request?: Payload
   response?: Payload
   toolCall?: ToolCall
+  toolResult?: { content?: unknown; isError?: boolean; durationMs?: number }
   decision?: DecisionRecord
   risk: RiskLevel
   findings?: Finding[]
   parentId?: string
+}
+
+export interface Stats {
+  Total: number
+  ByType: Record<string, number>
+  ByRisk: Record<string, number>
+}
+
+export interface SessionStat {
+  sessionId: string
+  agent: string
+  events: number
+  maxRisk: RiskLevel
+  lastSeen: number
+  toolCalls: number
+}
+
+export interface FindingStat {
+  rule: string
+  count: number
+  maxRisk: RiskLevel
+}
+
+export interface PolicyRule {
+  name: string
+  tool?: string
+  method?: string
+  command?: string
+  paths?: string[]
+  args?: Record<string, string>
+  decision: 'allow' | 'deny' | 'ask'
+  maxRisk?: RiskLevel
+}
+
+export interface RuntimeInfo {
+  version: string
+  commit: string
+  buildTime: string
+  mode: string
+  addr: string
+  dataDir: string
+  retentionDays: number
+  policyFile: string
+  upstream: string
+  wsClients: number
+}
+
+export interface AuditReport {
+  valid: boolean
+  checked: number
+  missingEvents: number
+  brokenSeq?: number
+  reason?: string
 }
