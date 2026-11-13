@@ -24,9 +24,10 @@ python3 -m http.server 8788
 ```
 website/
 ├── index.html      # 页面结构与中英双语文案
-├── styles.css      # iOS 设计系统（含深色模式、响应式）
+├── styles.css      # 雾蓝灰单色系设计系统（含深色模式、响应式）
 ├── main.js         # 语言切换、复制、Tab、滚动动画
+├── particles.js    # 背景粒子场（蓝灰同色系，随深色模式与减少动效降级）
 └── assets/         # 产品截图（graph/events/approval/detail）
 ```
 
-设计语言：SF 字体栈、系统色（#007AFF 等）、毛玻璃、圆角卡片、`prefers-color-scheme` 自适应。
+设计语言：SF 字体栈、雾蓝灰同色系、毛玻璃、圆角卡片、背景粒子场、`prefers-color-scheme` 自适应。

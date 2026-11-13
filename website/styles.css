@@ -3,19 +3,19 @@
    ============================================================ */
 
 :root {
-  /* iOS system colors */
-  --blue: #007aff;
-  --green: #34c759;
-  --orange: #ff9500;
-  --red: #ff3b30;
-  --purple: #af52de;
-  --teal: #5ac8fa;
-  --yellow: #ffcc00;
+  /* 雾蓝灰单色系 */
+  --blue: #2f6fb8;
+  --green: #4f8a70;
+  --orange: #a97b3f;
+  --red: #b65c55;
+  --purple: #5578a8;
+  --teal: #6a92bd;
+  --yellow: #a98a45;
 
   /* light mode surfaces */
-  --bg: #f2f2f7;
+  --bg: #f3f6fa;
   --bg-elevated: #ffffff;
-  --bg-grouped: #ffffff;
+  --bg-grouped: rgba(255,255,255,0.72);
   --fill: rgba(120, 120, 128, 0.12);
   --fill-strong: rgba(120, 120, 128, 0.2);
   --separator: rgba(60, 60, 67, 0.12);
@@ -25,9 +25,9 @@
   --nav-bg: rgba(255, 255, 255, 0.72);
   --code-bg: #1c1c1e;
   --code-text: #f5f5f7;
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
-  --hero-glow: radial-gradient(60% 60% at 50% 0%, rgba(0, 122, 255, 0.14), transparent 70%);
+  --shadow: 0 14px 36px rgba(24, 46, 92, 0.10);
+  --shadow-sm: 0 2px 10px rgba(24, 46, 92, 0.06);
+  --hero-glow: radial-gradient(60% 60% at 50% 0%, rgba(47, 111, 184, 0.10), transparent 70%);
 
   --radius: 20px;
   --radius-sm: 14px;
@@ -38,19 +38,19 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #000000;
-    --bg-elevated: #1c1c1e;
-    --bg-grouped: #1c1c1e;
-    --fill: rgba(118, 118, 128, 0.24);
-    --fill-strong: rgba(118, 118, 128, 0.36);
-    --separator: rgba(84, 84, 88, 0.65);
-    --text: #f5f5f7;
-    --text-secondary: #98989f;
-    --text-tertiary: #6c6c70;
-    --nav-bg: rgba(22, 22, 24, 0.72);
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.4);
-    --hero-glow: radial-gradient(60% 60% at 50% 0%, rgba(10, 132, 255, 0.22), transparent 70%);
+    --bg: #0e131d;
+    --bg-elevated: #182030;
+    --bg-grouped: rgba(18, 24, 36, 0.72);
+    --fill: rgba(118, 138, 168, 0.20);
+    --fill-strong: rgba(118, 138, 168, 0.32);
+    --separator: rgba(120, 140, 170, 0.22);
+    --text: #f5f8fc;
+    --text-secondary: #a9b7cc;
+    --text-tertiary: #6c7c94;
+    --nav-bg: rgba(16, 22, 33, 0.72);
+    --shadow: 0 14px 36px rgba(0, 0, 0, 0.42);
+    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.32);
+    --hero-glow: radial-gradient(60% 60% at 50% 0%, rgba(79, 130, 200, 0.16), transparent 70%);
   }
 }
 
@@ -69,6 +69,11 @@ body {
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
+
+#particles {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+}
+main, footer { position: relative; z-index: 1; }
 
 a { color: var(--blue); text-decoration: none; }
 img { max-width: 100%; display: block; }
@@ -91,7 +96,7 @@ img { max-width: 100%; display: block; }
 .brand-mark {
   width: 26px; height: 26px; border-radius: 8px;
   background: conic-gradient(from 180deg, var(--blue), var(--purple), var(--teal), var(--blue));
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25), 0 2px 6px rgba(0,122,255,0.4);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25), 0 2px 6px rgba(47,111,184,0.32);
 }
 .nav-links { display: flex; gap: 16px; margin-left: auto; align-items: center; }
 .nav-links a { color: var(--text-secondary); font-size: 14px; font-weight: 500; }
@@ -170,7 +175,7 @@ img { max-width: 100%; display: block; }
 
 /* ---------- Stats strip ---------- */
 .stats {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
   background: var(--bg-elevated); border: 1px solid var(--separator);
   border-radius: var(--radius); padding: 26px 18px; margin: 8px 0;
 }
@@ -179,7 +184,7 @@ img { max-width: 100%; display: block; }
 .stat .lbl { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
 
 /* ---------- Sections ---------- */
-section { padding: 74px 0; }
+section { padding: 80px 0; }
 .section-head { text-align: center; max-width: 640px; margin: 0 auto 48px; }
 .section-head h2 {
   font-size: clamp(30px, 4.5vw, 42px); font-weight: 700;
@@ -188,25 +193,25 @@ section { padding: 74px 0; }
 .section-head p { color: var(--text-secondary); font-size: 17px; }
 
 /* feature grid */
-.grid { display: grid; gap: 16px; }
+.grid { display: grid; gap: 24px; }
 .grid-3 { grid-template-columns: repeat(3, 1fr); }
 .grid-2 { grid-template-columns: repeat(2, 1fr); }
 .card {
   background: var(--bg-grouped); border: 1px solid var(--separator);
-  border-radius: var(--radius); padding: 26px;
+  border-radius: var(--radius); padding: 28px;
   transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
 }
 .card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
 .card .ico {
   width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center;
-  font-size: 22px; margin-bottom: 16px; color: #fff;
+  font-size: 22px; margin-bottom: 16px;
 }
-.ico.blue { background: var(--blue); }
-.ico.green { background: var(--green); }
-.ico.orange { background: var(--orange); }
-.ico.red { background: var(--red); }
-.ico.purple { background: var(--purple); }
-.ico.teal { background: var(--teal); }
+.ico.blue { background: rgba(47,111,184,0.12); color: var(--blue); }
+.ico.green { background: rgba(79,138,112,0.14); color: var(--green); }
+.ico.orange { background: rgba(169,123,63,0.14); color: var(--orange); }
+.ico.red { background: rgba(182,92,85,0.13); color: var(--red); }
+.ico.purple { background: rgba(85,120,168,0.14); color: var(--purple); }
+.ico.teal { background: rgba(106,146,189,0.14); color: var(--teal); }
 .card h3 { font-size: 19px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
 .card p { color: var(--text-secondary); font-size: 15px; }
 
@@ -240,7 +245,7 @@ section { padding: 74px 0; }
 .step li::before { content: ""; position: absolute; left: 0; top: 12px; width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
 
 /* ---------- Gallery ---------- */
-.gallery { display: grid; gap: 20px; }
+.gallery { display: grid; gap: 24px; }
 .shot {
   border-radius: var(--radius); overflow: hidden;
   border: 1px solid var(--separator); box-shadow: var(--shadow-sm);
