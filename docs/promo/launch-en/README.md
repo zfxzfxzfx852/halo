@@ -18,4 +18,4 @@ Core links to keep consistent:
 - Demo: `docs/promo/halo-demo.gif`
 
 Do not coordinate upvotes, use fake accounts, or paste identical copy across
-communities. See the compliance section in `GITHUB_PLAN.md`.
+communities.

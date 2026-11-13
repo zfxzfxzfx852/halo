@@ -74,7 +74,7 @@ Agent ──► Halo 透明代理(拦截) ──► 策略引擎 ──► 检�
 - 目标：可运行的最小骨架 + 完整规划
 - 任务：
   - 初始化 Go module、目录结构、Makefile、`.gitignore`、LICENSE(MIT)
-  - 落地 `ROADMAP.md`、`GITHUB_PLAN.md`、README 双语骨架
+  - 落地 `ROADMAP.md`、README 双语骨架
   - `cmd/halo` 最小入口：加载配置、启动 HTTP server、`/healthz`
   - git init，建立提交规范与周备份 tag 机制
 - 交付物：`halo` 可编译运行，`GET /healthz` 返回 200
@@ -199,7 +199,7 @@ Agent ──► Halo 透明代理(拦截) ──► 策略引擎 ──► 检�
 
 #### W14（02/08–02/14）全球首发
 - 任务：Hacker News + Reddit + Product Hunt + X 首发；国内 V2EX/掘金/知乎/公众号/即刻/DeepSeek 社区；发布 `v1.0.0`
-- 验收：完成首发清单，按小时监控 star/流量/issue（详见 GITHUB_PLAN）
+- 验收：完成首发清单，按小时监控 star/流量/issue
 
 ### M5 二波（W15–W16）
 

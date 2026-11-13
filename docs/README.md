@@ -9,7 +9,7 @@
   - [通用 MCP 客户端](./integrations/mcp.md)
 - [性能基准](./BENCHMARKS.md)
 - [安全白皮书与威胁模型](./SECURITY.md)
-- 项目级文档：[`ROADMAP.md`](../ROADMAP.md)、[`GITHUB_PLAN.md`](../GITHUB_PLAN.md)、[示例配置](../halo.example.yaml)
+- 项目级文档：[`ROADMAP.md`](../ROADMAP.md)、[示例配置](../halo.example.yaml)
 
 ## English
 
@@ -17,4 +17,4 @@
   - Claude Code, Cursor, Cline, generic MCP clients
 - [Benchmarks](./BENCHMARKS.md)
 - [Security & threat model](./SECURITY.md)
-- Project docs: [`ROADMAP.md`](../ROADMAP.md), [`GITHUB_PLAN.md`](../GITHUB_PLAN.md), [example config](../halo.example.yaml)
+- Project docs: [`ROADMAP.md`](../ROADMAP.md), [example config](../halo.example.yaml)

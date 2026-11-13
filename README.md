@@ -72,7 +72,6 @@ Agent ─► Halo 透明代理 ─► 策略/检测/沙箱 ─► 模型/工具
 ### 文档
 
 - 开发路线图：[`ROADMAP.md`](./ROADMAP.md)
-- 发布与运营计划：[`GITHUB_PLAN.md`](./GITHUB_PLAN.md)
 - 接入指南：[`docs/integrations/`](./docs/integrations/README.md)
 
 ### 合规声明
