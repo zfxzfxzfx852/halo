@@ -24,6 +24,17 @@ func (e *Engine) Replace(p *model.Policy) {
 	e.mu.Unlock()
 }
 
+// Snapshot 返回当前策略的只读副本，供控制台展示。
+func (e *Engine) Snapshot() (defaultDecision model.Decision, rules []model.PolicyRule) {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	if e.policy == nil {
+		return model.DecisionDeny, nil
+	}
+	rules = append([]model.PolicyRule(nil), e.policy.Rules...)
+	return e.policy.Default, rules
+}
+
 // Result 是一次策略评估的结论。
 type Result struct {
 	Decision model.Decision

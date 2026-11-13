@@ -9,6 +9,7 @@ import (
 
 	"halo/internal/approval"
 	"halo/internal/config"
+	"halo/internal/policy"
 	"halo/internal/store"
 	"halo/web"
 )
@@ -28,6 +29,7 @@ type Server struct {
 	store        *store.Store
 	hub          *Hub
 	approvals    *approval.Manager
+	policy       *policy.Engine
 	proxyHandler http.Handler
 }
 
@@ -53,6 +55,10 @@ func New(cfg *config.Config, log *slog.Logger, st *store.Store, hub *Hub, approv
 	mux.HandleFunc("POST /api/v1/approvals/{id}", s.resolveApproval)
 	mux.HandleFunc("GET /api/v1/audit/verify", s.verifyAudit)
 	mux.HandleFunc("GET /api/v1/audit/export", s.exportAudit)
+	mux.HandleFunc("GET /api/v1/sessions", s.listSessions)
+	mux.HandleFunc("GET /api/v1/findings", s.listFindings)
+	mux.HandleFunc("GET /api/v1/policies", s.listPolicies)
+	mux.HandleFunc("GET /api/v1/runtime", s.runtimeInfo)
 	mux.HandleFunc("GET /api/v1/stream", hub.ServeWS)
 
 	// 嵌入式控制台（iOS 风格 UI）。

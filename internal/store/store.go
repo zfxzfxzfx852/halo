@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -184,6 +185,131 @@ func (s *Store) groupCount(ctx context.Context, col string, dst map[string]int64
 		dst[k] = n
 	}
 	return rows.Err()
+}
+
+// SessionStat 是按会话聚合的概览数据。
+type SessionStat struct {
+	SessionID string `json:"sessionId"`
+	Agent     string `json:"agent"`
+	Events    int64  `json:"events"`
+	MaxRisk   string `json:"maxRisk"`
+	LastSeen  int64  `json:"lastSeen"`
+	ToolCalls int64  `json:"toolCalls"`
+}
+
+// Sessions 返回最近的会话聚合，按最后活动时间倒序。
+func (s *Store) Sessions(ctx context.Context, limit int) ([]SessionStat, error) {
+	if limit <= 0 || limit > 200 {
+		limit = 50
+	}
+	rows, err := s.db.QueryContext(ctx, `
+SELECT session_id,
+       COALESCE(MAX(agent), ''),
+       COUNT(*),
+       MAX(created_at),
+       MAX(CASE risk WHEN 'critical' THEN 4 WHEN 'high' THEN 3
+                     WHEN 'medium' THEN 2 WHEN 'low' THEN 1 ELSE 0 END),
+       SUM(CASE type WHEN 'tool_call' THEN 1 ELSE 0 END)
+FROM events
+GROUP BY session_id
+ORDER BY MAX(created_at) DESC
+LIMIT ?`, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var out []SessionStat
+	for rows.Next() {
+		var st SessionStat
+		var sev int
+		if err := rows.Scan(&st.SessionID, &st.Agent, &st.Events, &st.LastSeen, &sev, &st.ToolCalls); err != nil {
+			return nil, err
+		}
+		st.MaxRisk = severityToRisk(sev)
+		out = append(out, st)
+	}
+	return out, rows.Err()
+}
+
+func severityToRisk(sev int) string {
+	switch sev {
+	case 4:
+		return string(model.RiskCritical)
+	case 3:
+		return string(model.RiskHigh)
+	case 2:
+		return string(model.RiskMedium)
+	case 1:
+		return string(model.RiskLow)
+	default:
+		return string(model.RiskNone)
+	}
+}
+
+// FindingStat 是按检测规则聚合的命中统计。
+type FindingStat struct {
+	Rule    string `json:"rule"`
+	Count   int64  `json:"count"`
+	MaxRisk string `json:"maxRisk"`
+}
+
+// Findings 从最近事件中聚合检测命中，按次数倒序。
+func (s *Store) Findings(ctx context.Context, scanLimit int) ([]FindingStat, error) {
+	if scanLimit <= 0 || scanLimit > 5000 {
+		scanLimit = 1000
+	}
+	rows, err := s.db.QueryContext(ctx, `
+SELECT payload FROM events
+WHERE payload LIKE '%"findings"%'
+ORDER BY created_at DESC
+LIMIT ?`, scanLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	type agg struct {
+		count int64
+		sev   int
+	}
+	counts := map[string]*agg{}
+	for rows.Next() {
+		var payload string
+		if err := rows.Scan(&payload); err != nil {
+			return nil, err
+		}
+		var e model.Event
+		if err := json.Unmarshal([]byte(payload), &e); err != nil {
+			continue
+		}
+		for _, f := range e.Findings {
+			a, ok := counts[f.Rule]
+			if !ok {
+				a = &agg{}
+				counts[f.Rule] = a
+			}
+			a.count++
+			if sev := f.Level.Severity(); sev > a.sev {
+				a.sev = sev
+			}
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	out := make([]FindingStat, 0, len(counts))
+	for rule, a := range counts {
+		out = append(out, FindingStat{Rule: rule, Count: a.count, MaxRisk: severityToRisk(a.sev)})
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Count != out[j].Count {
+			return out[i].Count > out[j].Count
+		}
+		return out[i].Rule < out[j].Rule
+	})
+	return out, nil
 }
 
 // PurgeBefore 删除指定时间之前的事件，返回删除条数。

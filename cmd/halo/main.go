@@ -119,6 +119,7 @@ func main() {
 	}
 
 	srv := server.New(cfg, log, st, hub, approvals, proxyHandler)
+	srv.SetPolicy(engine)
 
 	errCh := make(chan error, 1)
 	go func() {
