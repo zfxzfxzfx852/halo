@@ -73,6 +73,7 @@ Agent ─► Halo 透明代理 ─► 策略/检测/沙箱 ─► 模型/工具
 
 - 开发路线图：[`ROADMAP.md`](./ROADMAP.md)
 - 接入指南：[`docs/integrations/`](./docs/integrations/README.md)
+- 贡献指南：[`CONTRIBUTING.md`](./CONTRIBUTING.md) · 更新记录：[`CHANGELOG.md`](./CHANGELOG.md) · 行为准则：[`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md)
 
 ### 合规声明
 
@@ -111,6 +112,11 @@ Also available via Homebrew (`brew install zfxzfxzfx852/tap/halo`) and Docker (`
 ### Integrations
 
 Point your tool's Base URL at Halo. See [docs/integrations](./docs/integrations/README.md) for Claude Code, Cursor, Cline and generic MCP clients.
+
+### Resources
+
+- [Contributing guide](./CONTRIBUTING.md) · [Changelog](./CHANGELOG.md) · [Code of Conduct](./CODE_OF_CONDUCT.md)
+- [Security policy](./docs/SECURITY.md) · [Roadmap](./ROADMAP.md)
 
 ### License
 
